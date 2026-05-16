@@ -1,0 +1,89 @@
+{% load static %}
+{% load widget_tweaks %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Registro | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/acc.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+<main class="auth-container">
+
+    <section class="auth-card">
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.15) translateY(-2px)'" onmouseout="this.style.transform='scale(1)'">
+    <img src="{% static 'img/logo.png' %}" alt="Homie Logo" style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+</a>
+        <h2>Crear cuenta</h2>
+
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" action="{% url 'register' %}">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="form-group">
+                {{ form.full_name.label_tag }}
+                {{ form.full_name|add_class:"input" }}
+                {{ form.full_name.errors }}
+            </div>
+
+            <div class="form-group">
+                {{ form.username.label_tag }}
+                {{ form.username|add_class:"input" }}
+                {{ form.username.errors }}
+            </div>
+
+            <div class="form-group">
+                {{ form.email.label_tag }}
+                {{ form.email|add_class:"input" }}
+                {{ form.email.errors }}
+            </div>
+
+            <div class="form-group">
+                {{ form.password1.label_tag }}
+                {{ form.password1|add_class:"input" }}
+                {{ form.password1.errors }}
+            </div>
+
+            <div class="form-group">
+                {{ form.password2.label_tag }}
+                {{ form.password2|add_class:"input" }}
+                {{ form.password2.errors }}
+            </div>
+
+            <div class="form-group">
+                {{ form.birth_date.label_tag }}
+                {{ form.birth_date|add_class:"input" }}
+                {{ form.birth_date.errors }}
+            </div>
+
+            <div class="form-group">
+                {{ form.avatar.label_tag }}
+                {{ form.avatar|add_class:"input" }}
+                {{ form.avatar.errors }}
+            </div>
+
+            <button type="submit" class="btn primary">
+                Crear cuenta
+            </button>
+        </form>
+
+        <p class="auth-link">
+            ¿Ya tienes cuenta?
+            <a href="{% url 'login' %}">Inicia sesión</a>
+        </p>
+    </section>
+
+</main>
+
+</body>
+</html>

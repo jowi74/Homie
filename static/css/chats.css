@@ -1,0 +1,206 @@
+/* =========================================
+   CHATS CSS - OPTIMIZADO
+   ========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: #f5f3ee;
+    color: #3f3a2f;
+}
+
+/* ── HEADER ─────────────────────── */
+.header {
+    height: 70px;
+    background-color: #6b4f2d;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    color: #fdfaf6;
+}
+
+.logo {
+    font-size: 1.5rem;
+}
+
+/* BOTONES PIXEL */
+.btn-pixel {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.btn-pixel img {
+    width: 40px;
+    image-rendering: pixelated;
+}
+
+/* ── CONTENEDOR ─────────────────────── */
+.chats-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* CABECERA */
+.chats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+/* ── Botones paleta marrón/crema ─────────────────── */
+.btn-brown {
+    background: #6b4f2d;
+    color: #fdfaf6;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.btn-brown:hover { background: #4a3520; transform: translateY(-1px); }
+.btn-cream {
+    background: #f0e6d3;
+    color: #4a3520;
+    border: 1px solid #c9a97a;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+.btn-cream:hover { background: #e0cdb0; transform: translateY(-1px); }
+
+/* Chat actions header */
+.chat-action-btns { display:flex; gap:10px; }
+
+/* ── LISTA DE CHATS ─────────────────── */
+.chats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* CHAT GENÉRICO */
+.chat-item {
+    background-color: #e7efdf;
+    padding: 12px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #3f3a2f;
+    position: relative;
+    box-shadow: 0 2px 6px rgba(60, 50, 30, 0.15);
+}
+
+.chat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.chat-name {
+    font-weight: bold;
+}
+.last-message {
+    font-size: 0.85rem;
+    color: #6b705c;
+}
+
+/* GRUPOS */
+.group-chat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.group-link {
+    text-decoration: none;
+    color: #3f3a2f;
+    flex: 1;
+}
+
+/* ── Modal overlay ─────────────────── */
+.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; }
+.modal-content { background:#fdfaf6; border-radius:12px; padding:28px 32px; min-width:320px; max-width:420px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2); }
+.modal-content h2 { margin:0 0 18px; color:#4a3520; font-size:1.25rem; }
+.form-group { margin-bottom:14px; display:flex; flex-direction:column; gap:6px; }
+.form-group label { font-weight:600; color:#6b4f2d; font-size:0.9rem; }
+.form-group select, .form-group input[type="text"], .form-group input[type="file"] {
+    border:1.5px solid #c9a97a; border-radius:8px; padding:8px 12px;
+    background:#fffdf9; color:#3d2b1a; font-size:0.95rem;
+    outline:none; transition:border-color 0.2s;
+}
+.form-group select:focus, .form-group input[type="text"]:focus { border-color:#6b4f2d; }
+.users-list { display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto; padding:6px; border:1.5px solid #c9a97a; border-radius:8px; background:#fffdf9; }
+.users-list label { display:flex; align-items:center; gap:8px; cursor:pointer; color:#3d2b1a; font-size: 0.9rem; }
+.modal-actions { display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
+
+/* =========================================
+   RESPONSIVE — CHATS
+   ========================================= */
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 16px;
+        height: 60px;
+    }
+    .chats-page {
+        padding: 20px 12px;
+    }
+    .chats-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .chat-action-btns {
+        width: 100%;
+        flex-direction: row;
+        gap: 8px;
+    }
+    .btn-brown {
+        flex: 1;
+        justify-content: center;
+        font-size: 0.88rem;
+        padding: 8px 12px;
+    }
+
+    /* Items de la lista */
+    .chat-item {
+        padding: 10px;
+    }
+
+    /* Modal */
+    .modal-content {
+        width: 94%;
+        padding: 22px 16px;
+    }
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+    .modal-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-action-btns {
+        flex-direction: column;
+    }
+    .btn-brown {
+        width: 100%;
+    }
+}

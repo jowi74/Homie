@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Página no encontrada | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #fdf6ec 0%, #e8f5e2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3f3a2f;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            max-width: 560px;
+        }
+
+        .big-emoji {
+            font-size: 6rem;
+            display: block;
+            animation: bounce 1.6s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-18px);
+            }
+        }
+
+        .code {
+            font-size: 7rem;
+            font-weight: 900;
+            color: #a9845c;
+            line-height: 1;
+            letter-spacing: -4px;
+            margin: 15px 0 5px;
+        }
+
+        h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #4b3720;
+            margin-bottom: 12px;
+        }
+
+        p {
+            color: #888;
+            font-size: 1.1rem;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #6b8f71, #4b6f44);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(75, 111, 68, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 111, 68, 0.45);
+        }
+
+        .logo-top {
+            position: absolute;
+            top: 24px;
+            left: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #6b8f71;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logo-top img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="{% url 'inicio' %}" class="logo-top">
+        <img src="{% static 'img/logo.png' %}" alt="Homie">
+        Homie
+    </a>
+    <div class="container">
+        <span class="big-emoji">🏠</span>
+        <div class="code">404</div>
+        <h1>Esta sala no existe (o ya no existe)</h1>
+        <p>La página que buscas fue eliminada, nunca existió,<br>o simplemente se mudó a otro piso.</p>
+        <a href="{% url 'inicio' %}" class="btn">🔑 Volver a mis casas</a>
+    </div>
+</body>
+
+</html>

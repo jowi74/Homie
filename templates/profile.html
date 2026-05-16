@@ -1,0 +1,312 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mi perfil | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <!-- ── HEADER ────────────────────────────────────────────────────── -->
+    <header class="header">
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.15) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+        <nav>
+            <a href="{% url 'inicio' %}">Mis casas</a>
+            <form method="post" action="{% url 'logout' %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Cerrar sesión</button>
+            </form>
+        </nav>
+    </header>
+
+    <!-- ── ALERTS GLOBALES ────────────────────────────────────────────── -->
+    <div class="profile-layout">
+
+        {% if success %}
+        <div class="alert success" style="grid-column: 1/-1;">✅ {{ success }}</div>
+        {% endif %}
+        {% if error %}
+        <div class="alert error" style="grid-column: 1/-1;">❌ {{ error }}</div>
+        {% endif %}
+
+        <!-- ── SIDEBAR ─────────────────────────────────────────────────── -->
+        <aside class="profile-sidebar">
+
+            <!-- Avatar -->
+            <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+                <div class="avatar-wrapper" style="position:relative; display:inline-block;">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="Avatar" id="avatarImg">
+                    {% else %}
+                    <img src="{% static 'img/profile_default.png' %}" alt="Avatar" id="avatarImg">
+                    {% endif %}
+                    {% if user.equipped_frame %}
+                    <img src="{% static 'img/' %}{{ user.equipped_frame }}" alt="Marco"
+                        style="position:absolute; inset:-15px; width:calc(100% + 30px); height:calc(100% + 30px); object-fit:fill; pointer-events:none; z-index:2;">
+                    {% endif %}
+                </div>
+                <button onclick="openAvatarModal()"
+                    style="background:#f5efe6; border:1.5px solid #c9a97a; color:#6b4f2d; border-radius:10px; padding:8px 18px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:background 0.2s;"
+                    onmouseover="this.style.background='#e8dcc8'" onmouseout="this.style.background='#f5efe6'">✏️
+                    Cambiar foto</button>
+            </div>
+
+            <!-- Nombre y username -->
+            <div class="sidebar-name">{{ user.full_name }}</div>
+            <div class="sidebar-username">@{{ user.username }}</div>
+
+            <div class="sidebar-divider"></div>
+
+            <!-- Correo -->
+            <div class="info-row">
+                <span class="info-label">📧 Correo</span>
+                <span class="info-value">{{ user.email }}</span>
+            </div>
+
+            <!-- Fecha de nacimiento -->
+            <div class="info-row">
+                <span class="info-label">🎂 Nacimiento</span>
+                <span class="info-value">{{ user.birth_date|date:"d/m/Y" }}</span>
+            </div>
+
+            <!-- Fecha de registro -->
+            <div class="info-row">
+                <span class="info-label">📅 Miembro desde</span>
+                <span class="info-value">{{ user.date_joined|date:"d/m/Y" }}</span>
+            </div>
+
+            <div class="sidebar-divider"></div>
+
+            <!-- Botón volver -->
+            <a href="{% url 'inicio' %}" class="btn secondary" style="width:100%; text-align:center;">
+                ← Volver al inicio
+            </a>
+        </aside>
+
+        <!-- main -->
+        <main class="profile-main">
+
+            <!-- Estadisticas -->
+            <div class="profile-card">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="card-icon">📊</span>
+                        <h2 class="card-title">Mis estadísticas</h2>
+                    </div>
+                    <div
+                        style="background:#e8f5e9; color:#2e7d32; padding:6px 14px; border-radius:20px; font-weight:800; font-size:0.95rem; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                        Saldo: {{ user.wallet_balance }} <img src="{% static 'img/saldo.png' %}" alt="Saldo"
+                            style="height:1em; vertical-align:middle;">
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ user.houses.count }}</div>
+                        <div class="stat-label">Casas</div>
+                    </div>
+                    <div class="stat-card brown">
+                        <div class="stat-number">{{ total_tasks }}</div>
+                        <div class="stat-label">Tareas</div>
+                    </div>
+                    <div class="stat-card dark">
+                        <div class="stat-number">{{ total_shopping }}</div>
+                        <div class="stat-label">Compras</div>
+                    </div>
+                </div>
+
+                {% if total_tasks >= 25 and total_shopping >= 25 %}
+                <form method="POST" action="{% url 'profile' %}" style="margin-top:18px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="convert_points">
+                    <button type="submit" class="btn"
+                        style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #c9a97a, #8c6a43); color:#fff; border:none; padding:14px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; box-shadow:0 4px 15px rgba(107,79,45,0.3); transition:transform 0.15s, box-shadow 0.15s;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(107,79,45,0.4)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(107,79,45,0.3)';">
+                        Canjear 25 Tareas + 25 Compras por 100 <img src="{% static 'img/saldo.png' %}" alt="Saldo"
+                            style="height:1em; vertical-align:middle;">
+                    </button>
+                </form>
+                {% else %}
+                <div
+                    style="margin-top:18px; background:#fffdf9; border:2px dashed #e0cdb0; border-radius:12px; padding:14px; text-align:center;">
+                    <p style="margin:0; font-size:0.88rem; color:#888; font-weight:600; line-height:1.4;">
+                        Reúne al menos 25 tareas y 25 compras completadas globalmente para canjearlas por 100 <img
+                            src="{% static 'img/saldo.png' %}" alt="Saldo" style="height:1em; vertical-align:middle;">.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- marcos del perfil -->
+            <div class="profile-card" id="cosmeticos-card">
+                <div class="card-header" style="cursor:pointer; user-select:none;" onclick="toggleCosmeticos()">
+                    <span class="card-icon">🎨</span>
+                    <h2 class="card-title">Cosméticos</h2>
+                    <span id="cosmeticos-toggle-lbl" style="margin-left:auto; color:#c9a97a; font-size:0.8rem;">▼
+                        Mostrar</span>
+                </div>
+                <div id="cosmeticos-body" style="display:none; margin-top:14px;">
+                    {% if owned_frames %}
+                    <p style="font-size:0.82rem; color:#888; margin-bottom:12px;">Selecciona un marco para ponértelo.
+                        Solo puedes llevar uno a la vez.</p>
+                    <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+                        {% for frame in owned_frames %}
+                        <form method="POST" action="{% url 'profile' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="equip_frame">
+                            <input type="hidden" name="frame_name" value="{{ frame.frame_name }}">
+                            <button type="submit" title="{{ frame.frame_name }}"
+                                class="frame-btn {% if user.equipped_frame == frame.frame_name %}frame-btn--active{% endif %}"
+                                style="width:72px; height:72px; position:relative; border-radius:50%; background:transparent; cursor:pointer; padding:0; overflow:hidden; border: {% if user.equipped_frame == frame.frame_name %}3px solid #c9a97a{% else %}2px solid #e0cdb0{% endif %}; box-shadow:{% if user.equipped_frame == frame.frame_name %}0 0 12px rgba(201,169,122,0.7){% else %}none{% endif %}; transition:all 0.2s;">
+                                <img src="{% static 'img/' %}{{ frame.frame_name }}"
+                                    style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"
+                                    alt="Marco">
+                                {% if user.equipped_frame == frame.frame_name %}
+                                <div
+                                    style="position:absolute; bottom:0; right:0; width:22px; height:22px; border-radius:50%; background:#c9a97a; display:flex; align-items:center; justify-content:center; font-size:0.7rem; z-index:3;">
+                                    ✅</div>
+                                {% endif %}
+                            </button>
+                        </form>
+                        {% endfor %}
+                        {% if user.equipped_frame %}
+                        <form method="POST" action="{% url 'profile' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="equip_frame">
+                            <input type="hidden" name="frame_name" value="__none__">
+                            <button type="submit"
+                                style="background:#fff0f0; border:1.5px solid #f5c6cb; color:#c0392b; border-radius:8px; padding:8px 12px; font-size:0.82rem; font-weight:700; cursor:pointer;">✕
+                                Quitar marco</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <p style="font-size:0.85rem; color:#aaa; text-align:center; margin:10px 0;">Aún no tienes marcos.
+                        ¡Visita la Tienda y cómprate uno!</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- cambiar nombre de usuario -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <span class="card-icon">🏷️</span>
+                    <h2 class="card-title">Nombre de usuario</h2>
+                </div>
+                <form method="post" action="{% url 'profile' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_username">
+                    <div class="form-group">
+                        {{ username_form.username.label_tag }}
+                        {{ username_form.username }}
+                        {{ username_form.username.errors }}
+                    </div>
+                    <button type="submit" class="btn primary">Guardar nombre de usuario</button>
+                </form>
+            </div>
+
+            <!-- cambiar contraseña -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <span class="card-icon">🔒</span>
+                    <h2 class="card-title">Cambiar contraseña</h2>
+                </div>
+                <form method="post" action="{% url 'profile' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="change_password">
+                    <div class="form-group">
+                        {{ password_form.current_password.label_tag }}
+                        {{ password_form.current_password }}
+                        {{ password_form.current_password.errors }}
+                    </div>
+                    <div class="form-group">
+                        {{ password_form.new_password1.label_tag }}
+                        {{ password_form.new_password1 }}
+                        {{ password_form.new_password1.errors }}
+                    </div>
+                    <div class="form-group">
+                        {{ password_form.new_password2.label_tag }}
+                        {{ password_form.new_password2 }}
+                        {{ password_form.new_password2.errors }}
+                    </div>
+                    <button type="submit" class="btn primary">Cambiar contraseña</button>
+                </form>
+            </div>
+
+            <!-- eliminar cuenta -->
+            <div class="profile-card" style="border: 1px solid #ffcdcd; background: #fffafaa1;">
+                <div class="card-header">
+                    <span class="card-icon">⚠️</span>
+                    <h2 class="card-title" style="color: #d32f2f;">Zona de Peligro</h2>
+                </div>
+                <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">
+                    Si eliminas tu cuenta, se borrarán todos tus datos de forma permanente y no podrás recuperarlos. Tendrás que confirmarlo con un código enviado a tu correo electrónico.
+                </p>
+                <form method="post" action="{% url 'delete_account' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="send_code">
+                    <button type="submit" class="btn" style="background-color: #d32f2f; color: white; width: 100%;">
+                        Solicitar borrado de cuenta
+                    </button>
+                </form>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- modal cambiar foto de perfil -->
+    <div class="avatar-modal-overlay" id="avatarModal">
+        <div class="avatar-modal">
+            <div class="modal-title">📸 Cambiar foto de perfil</div>
+            <form method="post" action="{% url 'profile' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_avatar">
+                <div class="form-group">
+                    {{ avatar_form.avatar.label_tag }}
+                    {{ avatar_form.avatar }}
+                    {{ avatar_form.avatar.errors }}
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn primary">Subir foto</button>
+                    <button type="button" class="btn secondary" onclick="closeAvatarModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const openAvatarModal = () => document.getElementById('avatarModal').classList.add('open');
+        const closeAvatarModal = () => document.getElementById('avatarModal').classList.remove('open');
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('avatarModal').addEventListener('click', function (e) {
+            if (e.target === this) closeAvatarModal();
+        });
+
+        function toggleCosmeticos() {
+            const body = document.getElementById('cosmeticos-body');
+            const lbl = document.getElementById('cosmeticos-toggle-lbl');
+            if (body.style.display === 'none') {
+                body.style.display = 'block';
+                lbl.textContent = '▲ Ocultar';
+            } else {
+                body.style.display = 'none';
+                lbl.textContent = '▼ Mostrar';
+            }
+        }
+    </script>
+
+</body>
+
+</html>

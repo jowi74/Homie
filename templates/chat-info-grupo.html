@@ -1,0 +1,198 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% if room.is_group %}Ajustes del grupo{% else %}Info del chat{% endif %} | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/chat-info-grupo.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <header class="page-header">
+        <a href="{% url 'chat_grupo' house.slug room.slug %}">←</a>
+        <h1>{% if room.is_group %}⚙️ Ajustes del grupo{% else %}ℹInfo del chat{% endif %}</h1>
+    </header>
+
+    <div class="content">
+
+        <!-- foto e informacion -->
+        <div class="card">
+            <div class="group-avatar-wrap">
+                {% if room.is_group %}
+                {% if room.image %}
+                <div class="group-avatar"><img src="{{ room.image.url }}" alt="Grupo"></div>
+                {% else %}
+                <div class="group-avatar"><img src="{% static 'img/interrogante.png' %}" alt="Grupo"></div>
+                {% endif %}
+                {% if is_creator %}
+                <form method="POST" action="{% url 'cambiar_imagen_grupo_view' house.slug room.slug %}"
+                    enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;">
+                    {% csrf_token %}
+                    <input type="file" name="image" accept="image/*" id="img-input" style="display:none;"
+                        onchange="this.form.submit()">
+                    <button type="button" class="btn btn-cream"
+                        onclick="document.getElementById('img-input').click()">Cambiar foto</button>
+                </form>
+                {% endif %}
+                {% else %}
+                {% for m in members %}{% if m != request.user %}
+                <div style="position:relative; display:inline-block;" class="group-avatar">
+                    {% if m.avatar %}
+                    <img src="{{ m.avatar.url }}" alt="{{ m.username }}"
+                        style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+                    {% else %}
+                    <img src="{% static 'img/profile_default.png' %}" alt="{{ m.username }}"
+                        style="width:100%;height:100%;border-radius:50%;object-fit:cover;background:#6b4f2d;">
+                    {% endif %}
+                    {% if m.equipped_frame %}
+                    <img src="{% static 'img/' %}{{ m.equipped_frame }}" alt="Marco"
+                        style="position:absolute; inset:-8px; width:calc(100% + 16px); height:calc(100% + 16px); object-fit:fill; pointer-events:none; z-index:2; border-radius:0;">
+                    {% endif %}
+                </div>
+                {% endif %}{% endfor %}
+                {% endif %}
+                <div style="text-align:center; margin-top:6px;">
+                    <strong style="font-size:1.2rem; color:#2d1f10;">{% if room.is_group %}{{ room.name }}{% else %}Chat
+                        privado{% endif %}</strong>
+                </div>
+            </div>
+
+            <div style="margin-top:16px;">
+                <div class="info-row">
+                    <span class="label">Creado el</span>
+                    <span class="value">{{ room.created_at|date:"d/m/Y" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Miembros</span>
+                    <span class="value">{{ members.count }}</span>
+                </div>
+                {% if room.is_group %}
+                <div class="info-row">
+                    <span class="label">Creador</span>
+                    <span class="value">{% if room.creator %}{{ room.creator.username }}{% else %}—{% endif %}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Miembros -->
+        <div class="card">
+            <div class="section-title-row">
+                <h2>👥 Miembros</h2>
+                {% if is_creator and room.is_group %}
+                <button class="btn btn-brown" onclick="document.getElementById('addModal').style.display='flex'">+
+                    Añadir</button>
+                {% endif %}
+            </div>
+
+            {% for member in members %}
+            <div class="member-row">
+                <div style="position:relative; display:inline-block; width:55px; height:55px; flex-shrink:0;">
+                    {% if member.avatar %}
+                    <img src="{{ member.avatar.url }}" alt="{{ member.username }}"
+                        style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+                    {% else %}
+                    <img src="{% static 'img/profile_default.png' %}" alt="{{ member.username }}"
+                        style="width:100%;height:100%;border-radius:50%;object-fit:cover;background:#6b4f2d;">
+                    {% endif %}
+                    {% if member.equipped_frame %}
+                    <img src="{% static 'img/' %}{{ member.equipped_frame }}" alt="Marco"
+                        style="position:absolute; inset:-8px; width:calc(100% + 16px); height:calc(100% + 16px); object-fit:fill; pointer-events:none; z-index:2; border-radius:0;">
+                    {% endif %}
+                </div>
+                <div class="member-info">
+                    <div class="name">
+                        {{ member.username }}
+                        {% if room.creator == member %}<span class="creator-badge">Admin</span>{% endif %}
+                        {% if member.id in muted_ids %}<span class="muted-badge">Muteado</span>{% endif %}
+                    </div>
+                    <div class="role">
+                        {% if member == request.user %}Tú{% elif room.creator == member %}Creador{% else %}Miembro{% endif %}
+                    </div>
+                </div>
+                {% if is_creator and member != request.user and room.is_group %}
+                <div class="member-actions">
+                    <form method="POST" action="{% url 'mute_miembro_grupo' house.slug room.slug member.username %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-mute"
+                            title="{% if member.id in muted_ids %}Desmutear{% else %}Mutear{% endif %}">
+                            {% if member.id in muted_ids %}🔊{% else %}🔇{% endif %}
+                        </button>
+                    </form>
+                    <form method="POST" action="{% url 'kick_miembro_grupo' house.slug room.slug member.username %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" title="Expulsar"
+                            onclick="return confirm('¿Expulsar a {{ member.username }}?')">✕</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Salir y borrado de chats/grupos -->
+        <div class="card" style="border-color:#f5c6cb;">
+            <h2 style="color:#c0392b;">Zona peligrosa</h2>
+            {% if room.is_group %}
+            {% if is_creator %}
+            <form method="POST" action="{% url 'borrar_chat_grupo' house.slug room.slug %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-full"
+                    onclick="return confirm('¿Borrar el grupo permanentemente? Esto no tiene vuelta atrás.')">
+                    Eliminar grupo</button>
+            </form>
+            {% else %}
+            <form method="POST" action="{% url 'salir_grupo_view' house.slug room.slug %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-full"
+                    onclick="return confirm('¿Salir del grupo? Ya no verás los mensajes de este grupo.')">Salir del
+                    grupo</button>
+            </form>
+            {% endif %}
+            {% else %}
+            <form method="POST" action="{% url 'borrar_chat_grupo' house.slug room.slug %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-full"
+                    onclick="return confirm('¿Borrar este chat? Se perderán todos los mensajes.')">Borrar
+                    conversación</button>
+            </form>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Modal para añadir miembros -->
+    <div class="modal" id="addModal">
+        <div class="modal-box">
+            <h3>➕ Añadir miembros</h3>
+            <form method="POST" action="{% url 'agregar_miembro_grupo_view' house.slug room.slug %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Selecciona miembros disponibles</label>
+                    <div class="users-checklist">
+                        {% for u in available_to_add %}
+                        <label><input type="checkbox" name="new_members" value="{{ u.id }}"> {{ u.username }}</label>
+                        {% empty %}
+                        <p style="color:#888; font-size:0.85rem; margin:0;">Todos los miembros de la casa ya están en el
+                            grupo.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cream"
+                        onclick="document.getElementById('addModal').style.display='none'">Cancelar</button>
+                    <button type="submit" class="btn btn-brown">Añadir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>

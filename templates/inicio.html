@@ -1,0 +1,309 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mis casas | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/inicio.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <!-- header -->
+    <header class="header">
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.15) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+        <nav class="user-nav">
+            <a href="{% url 'profile' %}" class="user-profile">
+                <div style="position:relative; display:inline-block; width:40px; height:40px;">
+                    {% if request.user.avatar %}
+                    <img src="{{ request.user.avatar.url }}" alt="Perfil"
+                        style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                    {% else %}
+                    <img src="{% static 'img/profile_default.png' %}" alt="Perfil"
+                        style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                    {% endif %}
+                    {% if request.user.equipped_frame %}
+                    <img src="{% static 'img/' %}{{ request.user.equipped_frame }}" alt="Marco"
+                        style="position:absolute; inset:-6px; width:calc(100% + 12px); height:calc(100% + 12px); object-fit:fill; pointer-events:none; z-index:2; border:none !important;">
+                    {% endif %}
+                </div>
+                <span>{{ request.user.username }}</span>
+            </a>
+            <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Cerrar sesión</button>
+            </form>
+        </nav>
+    </header>
+
+    <!-- body -->
+    <main class="container">
+        <h2>Mis casas</h2>
+
+        {% if messages %}
+        <div class="messages" style="margin-bottom: 20px;">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" style="padding: 10px; border-radius: 5px; {% if message.tags == 'error' %}background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% else %}background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;{% endif %} margin-bottom: 10px;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <button class="btn primary create-house-btn" onclick="openCreateModal()">
+            + Crear nueva casa
+        </button>
+        {% if request.user.is_staff %}
+        <a href="{% url 'admin_panel' %}" class="btn secondary" style="margin-left: 10px;">
+            Gestionar Web
+        </a>
+        {% endif %}
+
+        <section class="houses-grid">
+            {% for house in houses %}
+            <div class="house-card">
+
+                <button class="house-settings-btn"
+                    onclick="openSettingsModal('{{ house.slug }}', {% if house.creator == request.user %}true{% else %}false{% endif %})"
+                    style="transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15) rotate(15deg)'"
+                    onmouseout="this.style.transform='scale(1) rotate(0)'">
+                    <img src="{% static 'img/ajustes.png' %}" alt="Ajustes">
+                </button>
+
+
+                {% if house.image %}
+                <img class="house-image" src="{{ house.image.url }}" alt="{{ house.name }}">
+                {% else %}
+                <img class="house-image" src="{% static 'img/interrogante.png' %}" alt="{{ house.name }}">
+                {% endif %}
+
+                <h3>{{ house.name }}</h3>
+                <p>{{ house.description }}</p>
+
+                <a href="{% url 'casa_detalle' house.slug %}" class="btn primary">Entrar</a>
+            </div>
+            <!-- modal para gestionar miembros -->
+            <div class="modal" id="membersModal_{{ house.slug }}">
+                <div class="modal-content">
+                    <h2>Miembros - {{ house.name }}</h2>
+
+                    <div class="members-list">
+                        {% for member in house.members.all %}
+                        <div class="member-item">
+                            <span>{{ member.username }}</span>
+                            {% if request.user.username != member.username %}
+                            <form method="post" action="{% url 'eliminar_miembro_casa' house.slug member.username %}">
+                                {% csrf_token %}
+                                <button type="submit" class="remove-btn">Eliminar</button>
+                            </form>
+                            {% else %}
+                            <span class="role">Tú</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <form method="post" action="{% url 'anadir_miembro_casa' house.slug %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label>Añadir usuario</label>
+                            <input type="text" name="username" placeholder="Nombre de usuario" required>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="submit" class="btn primary">Añadir</button>
+                            <button type="button" class="btn secondary"
+                                onclick="closeMembers('{{ house.slug }}')">Cerrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <p>No perteneces a ninguna casa todavía.</p>
+            {% endfor %}
+        </section>
+
+
+    </main>
+
+    <!-- modal crear casas -->
+    <div class="modal" id="createHouseModal">
+        <div class="modal-content">
+            <h2>Crear nueva casa</h2>
+            <form method="post" enctype="multipart/form-data" action="{% url 'crear_casa' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.name.label_tag }}
+                    {{ form.name }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.description.label_tag }}
+                    {{ form.description }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.image.label_tag }}
+                    {{ form.image }}
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn primary">Crear</button>
+                    <button type="button" class="btn secondary" onclick="closeCreateModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+
+    <!-- modal ajustes de la casa -->
+    <div class="modal" id="houseSettingsModal">
+        <div class="modal-content">
+            <h2>Ajustes de la casa</h2>
+            <button class="settings-btn" onclick="openEditName()">Editar nombre</button>
+            <button class="settings-btn" onclick="openEditPhoto()">Cambiar foto</button>
+            <button class="settings-btn" onclick="openMembers()">Gestionar miembros</button>
+            <button class="settings-btn danger" id="deleteHouseBtn" onclick="openDeleteHouse()">Eliminar casa</button>
+            <button class="btn secondary" onclick="closeSettingsModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- modal editar nombre -->
+    <div class="modal" id="editNameModal">
+        <div class="modal-content">
+            <h2>Editar nombre</h2>
+            <form id="editNameForm" method="post" action="">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Nuevo nombre</label>
+                    <input type="text" name="name" id="editNameInput" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn primary">Guardar</button>
+                    <button type="button" class="btn secondary" onclick="closeEditName()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- modal cambiar foto -->
+    <div class="modal" id="editPhotoModal">
+        <div class="modal-content">
+            <h2>Cambiar foto</h2>
+            <form id="editPhotoForm" method="post" enctype="multipart/form-data" action="">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Nueva imagen</label>
+                    <input type="file" name="image" accept="image/*" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn primary">Actualizar</button>
+                    <button type="button" class="btn secondary" onclick="closeEditPhoto()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- modal eliminar casa -->
+    <div class="modal" id="deleteHouseModal">
+        <div class="modal-content">
+            <h2>Eliminar casa</h2>
+            <p>Se enviará un código de confirmación a tu correo.</p>
+
+            <form id="requestDeleteForm" method="post" action="">
+                {% csrf_token %}
+                <button type="submit" class="btn secondary">Solicitar código</button>
+            </form>
+
+            <form id="confirmDeleteForm" method="post" action="" style="margin-top: 20px;">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Código recibido</label>
+                    <input type="text" name="codigo" placeholder="Introduce el código">
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn danger">Confirmar eliminación</button>
+                    <button type="button" class="btn secondary" onclick="closeDeleteHouse()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- js -->
+    <script>
+        const open = id => document.getElementById(id).style.display = "flex";
+        const close = id => document.getElementById(id).style.display = "none";
+
+        let currentHouseId = null;
+
+        const openCreateModal = () => open("createHouseModal");
+        const closeCreateModal = () => close("createHouseModal");
+
+        const openSettingsModal = (houseSlug, isCreator = false) => {
+            currentHouseId = houseSlug;
+            const deleteBtn = document.getElementById('deleteHouseBtn');
+            if (deleteBtn) {
+                deleteBtn.style.display = isCreator ? 'block' : 'none';
+            }
+            open("houseSettingsModal");
+        };
+        const closeSettingsModal = () => close("houseSettingsModal");
+
+        const openEditName = () => {
+            if (currentHouseId) {
+                closeSettingsModal();
+                document.getElementById('editNameForm').action = `/inicio/${currentHouseId}/editar-nombre/`;
+            }
+            open("editNameModal");
+        };
+        const closeEditName = () => close("editNameModal");
+
+        const openEditPhoto = () => {
+            if (currentHouseId) {
+                closeSettingsModal();
+                document.getElementById('editPhotoForm').action = `/inicio/${currentHouseId}/editar-foto/`;
+            }
+            open("editPhotoModal");
+        };
+        const closeEditPhoto = () => close("editPhotoModal");
+
+        const openMembers = () => {
+            if (currentHouseId) {
+                closeSettingsModal();
+                open(`membersModal_${currentHouseId}`);
+            }
+        };
+        const closeMembers = (id) => {
+            if (id) {
+                close(`membersModal_${id}`);
+            } else if (currentHouseId) {
+                close(`membersModal_${currentHouseId}`);
+            }
+        };
+
+        const openDeleteHouse = () => {
+            if (currentHouseId) {
+                closeSettingsModal();
+                document.getElementById('requestDeleteForm').action = `/inicio/${currentHouseId}/solicitar-eliminacion/`;
+                document.getElementById('confirmDeleteForm').action = `/inicio/${currentHouseId}/confirmar-eliminacion/`;
+            }
+            open("deleteHouseModal");
+        };
+        const closeDeleteHouse = () => close("deleteHouseModal");
+    </script>
+
+</body>
+
+</html>

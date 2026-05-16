@@ -1,0 +1,475 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tienda Mágica | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/tienda.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+    <header class="header">
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.15) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+        <a href="{% url 'casa_detalle' house.slug %}" class="btn-pixel">
+            <img src="{% static 'img/logoVolver.png' %}" alt="Volver"
+                style="height:70px; width:auto !important; max-width:none !important; transition: transform 0.2s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));"
+                onmouseover="this.style.transform='scale(1.15) translateX(-5px)'"
+                onmouseout="this.style.transform='scale(1)'">
+        </a>
+    </header>
+
+    <main class="shop-page">
+        {% if messages %}
+        <div style="margin-bottom:16px;">
+            {% for msg in messages %}
+            <div style="padding:12px 18px; border-radius:10px; font-weight:600; font-size:0.95rem;
+                background:{% if msg.tags == 'success' %}#e8f5e9{% elif msg.tags == 'error' %}#fce4ec{% else %}#fff8e1{% endif %};
+                border-left:4px solid {% if msg.tags == 'success' %}#4caf50{% elif msg.tags == 'error' %}#e91e63{% else %}#ffc107{% endif %};
+                color:{% if msg.tags == 'success' %}#2e7d32{% elif msg.tags == 'error' %}#880e4f{% else %}#e65100{% endif %};
+                margin-bottom:8px;">
+                {% if msg.tags == 'success' %}✅{% elif msg.tags == 'error' %}❌{% else %}⚠️{% endif %} {{ msg }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="shop-header-row">
+            <h2>Tienda</h2>
+            <div class="shop-balances">
+                <div class="balance-badge" title="Puntos comunes de la Casa"><img src="{% static 'img/puntos.png' %}"
+                        alt="Puntos" style="height:1.0em; vertical-align:-0.2em; margin-right:2px;"> {{ house.available_points }}</div>
+                <div class="balance-badge" title="Saldo personal global"><img src="{% static 'img/saldo.png' %}"
+                        alt="Saldo" style="height:1.2em; vertical-align:-0.2em; margin-right:2px;"> {{ user.wallet_balance }}</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('info-juego', this)">Mobiliario y Mejoras</button>
+            <button class="tab-btn" onclick="openTab('info-personal', this)">Tienda Personalizada</button>
+            <button class="tab-btn" onclick="openTab('info-historial', this)">Historial</button>
+        </div>
+
+        <div id="info-juego" class="tab-content active">
+            <section class="shop-section">
+                <h3 class="shop-section-title">Mejoras de la Casa (afectan a todos)</h3>
+                <div class="shop-grid">
+
+                    <!-- Item gifs foto de la casa/chats -->
+                    <div class="shop-item">
+                        <div class="item-image-placeholder">🖼️</div>
+                        <div class="item-content">
+                            <h4 class="item-title">Permitir GIFs</h4>
+                            <p class="item-desc">Desbloquea la posibilidad de usar imágenes animadas (.gif) como la foto
+                                general de la casa y en los grupos de chat de la propia casa.</p>
+
+                            <form method="POST" action="{% url 'tienda' house.slug %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="buy_house_gifs">
+                                {% if house.gifs_unlocked %}
+                                <button type="button" class="buy-btn btn-owned" disabled>✅ Comprado</button>
+                                {% else %}
+                                {% if house.available_points >= 300 %}
+                                <button type="submit" class="buy-btn"
+                                    onclick="return confirm('¿Gastar 300 puntos del monedero común de la casa?')">Comprar
+                                    por <img src="{% static 'img/puntos.png' %}" alt="Puntos"
+                                        style="height:0.85em; vertical-align:-0.1em; margin-right:2px;"> 300</button>
+                                {% else %}
+                                <button type="button" class="buy-btn" disabled>No tienes puntos suficientes</button>
+                                {% endif %}
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="shop-section">
+                <h3 class="shop-section-title">Mejoras Personales globales</h3>
+                <div class="shop-grid">
+
+                    <!-- Item gifs fotos personales -->
+                    <div class="shop-item">
+                        <div class="item-image-placeholder"
+                            style="background:linear-gradient(135deg, #a8c0ff, #3f2b96);">🖼️</div>
+                        <div class="item-content">
+                            <h4 class="item-title">GIFs en Perfil</h4>
+                            <p class="item-desc">¡Dale vida a tu perfil! Desbloquea la capacidad de elegir imágenes
+                                animadas (.gif) como tu foto de perfil visible para todos.</p>
+
+                            <form method="POST" action="{% url 'tienda' house.slug %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="buy_personal_gifs">
+                                {% if user.gifs_unlocked %}
+                                <button type="button" class="buy-btn btn-owned" disabled>✅ Comprado</button>
+                                {% else %}
+                                {% if user.wallet_balance >= 100 %}
+                                <button type="submit" class="buy-btn" style="background:#3f2b96;"
+                                    onclick="return confirm('¿Gastar 100 de tu saldo personal?')">Comprar por <img
+                                        src="{% static 'img/saldo.png' %}" alt="Saldo"
+                                        style="height:1em; vertical-align:-0.1em; margin-right:2px;"> 100</button>
+                                {% else %}
+                                <button type="button" class="buy-btn" style="background:#555;" disabled>No tienes
+                                    saldo</button>
+                                {% endif %}
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Sección de Marcos Cosméticos -->
+            <section class="shop-section">
+                <h3 class="shop-section-title">Marcos de Perfil (Cosméticos)</h3>
+                <div class="shop-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                    {% for frame in frames %}
+                    <div class="shop-item" style="position:relative;">
+                        <div class="item-image-placeholder"
+                            style="background:#2a1e10; padding:0; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                            <img src="{% static 'img/' %}{{ frame.name }}" alt="{{ frame.label }}"
+                                style="width:100%; height:100%; object-fit:contain;">
+                        </div>
+                        <div class="item-content">
+                            <h4 class="item-title">{{ frame.label }}</h4>
+                            <p class="item-desc">Marco decorativo para tu foto de perfil
+                            </p>
+                            <form method="POST" action="{% url 'tienda' house.slug %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="buy_frame">
+                                <input type="hidden" name="frame_name" value="{{ frame.name }}">
+                                {% if frame.name in owned_frame_names %}
+                                <button type="button" class="buy-btn btn-owned" disabled>✅ Adquirido</button>
+                                {% else %}
+                                {% if user.wallet_balance >= 200 %}
+                                <button type="submit" class="buy-btn"
+                                    style="background:linear-gradient(135deg,#6b4f2d,#c9a97a);"
+                                    onclick="return confirm('¿Gastar 200 de tu saldo personal?')">Comprar por <img
+                                        src="{% static 'img/saldo.png' %}" alt="Saldo"
+                                        style="height:1em; vertical-align:-0.1em; margin-right:2px;"> 200</button>
+                                {% else %}
+                                <button type="button" class="buy-btn" style="background:#555;" disabled>Sin
+                                    saldo</button>
+                                {% endif %}
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Sección de Mejoras del Dormitorio -->
+            <section class="shop-section">
+                <h3 class="shop-section-title">Mejoras del Dormitorio (por casa)</h3>
+                <div class="shop-grid">
+
+                    <!-- Item color de paredes -->
+                    <div class="shop-item">
+                        <div class="item-image-placeholder"
+                            style="background:linear-gradient(135deg,#f8bbd0,#d1c4e9,#b8d4e8,#c8e6c9); font-size:2.5rem;">
+                            🎨</div>
+                        <div class="item-content">
+                            <h4 class="item-title">Pared de Color</h4>
+                            <p class="item-desc">Desbloquea la paleta de colores de pared en <strong>tu
+                                    dormitorio</strong> de esta casa. ¡Personalízalo desde dentro!</p>
+                            <form method="POST" action="{% url 'tienda' house.slug %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="buy_bedroom_wallcolor">
+                                {% if profile.unlock_wallcolor %}
+                                <button type="button" class="buy-btn btn-owned" disabled>✅ Desbloqueado</button>
+                                {% else %}
+                                {% if user.wallet_balance >= 80 %}
+                                <button type="submit" class="buy-btn"
+                                    style="background:linear-gradient(135deg,#c9a97a,#6b4f2d);"
+                                    onclick="return confirm('¿Gastar 80 de tu saldo personal?')">Comprar por <img
+                                        src="{% static 'img/saldo.png' %}" alt="Saldo"
+                                        style="height:1em; vertical-align:-0.1em; margin-right:2px;"> 80</button>
+                                {% else %}
+                                <button type="button" class="buy-btn" style="background:#555;" disabled>Sin
+                                    saldo</button>
+                                {% endif %}
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Item alfombra de estrellas -->
+                    <div class="shop-item">
+                        <div class="item-image-placeholder"
+                            style="background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); font-size:2.5rem;">⭐
+                        </div>
+                        <div class="item-content">
+                            <h4 class="item-title">Alfombra de Estrellas</h4>
+                            <p class="item-desc">Cambia la alfombra de tu dormitorio.</p>
+                            <form method="POST" action="{% url 'tienda' house.slug %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="buy_bedroom_stars_rug">
+                                {% if profile.unlock_stars_rug %}
+                                <button type="button" class="buy-btn btn-owned" disabled>✅ Desbloqueada</button>
+                                {% else %}
+                                {% if user.wallet_balance >= 120 %}
+                                <button type="submit" class="buy-btn"
+                                    style="background:linear-gradient(135deg,#1a1a2e,#533483);"
+                                    onclick="return confirm('¿Gastar 120 de tu saldo personal?')">Comprar por <img
+                                        src="{% static 'img/saldo.png' %}" alt="Saldo"
+                                        style="height:1em; vertical-align:-0.1em; margin-right:2px;"> 120</button>
+                                {% else %}
+                                <button type="button" class="buy-btn" style="background:#555;" disabled>Sin
+                                    saldo</button>
+                                {% endif %}
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Item poster gaming -->
+                    <div class="shop-item">
+                        <div class="item-image-placeholder"
+                            style="background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); font-size:2.5rem;">🎮
+                        </div>
+                        <div class="item-content">
+                            <h4 class="item-title">Poster Gaming</h4>
+                            <p class="item-desc">Pon un póster de videojuegos en la pared de tu dormitorio.</p>
+                            <form method="POST" action="{% url 'tienda' house.slug %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="buy_bedroom_poster_gaming">
+                                {% if profile.unlock_poster_gaming %}
+                                <button type="button" class="buy-btn btn-owned" disabled>✅ Desbloqueado</button>
+                                {% else %}
+                                {% if user.wallet_balance >= 150 %}
+                                <button type="submit" class="buy-btn"
+                                    style="background:linear-gradient(135deg,#302b63,#24243e);"
+                                    onclick="return confirm('¿Gastar 150 de tu saldo personal?')">Comprar por <img
+                                        src="{% static 'img/saldo.png' %}" alt="Saldo"
+                                        style="height:1em; vertical-align:-0.1em; margin-right:2px;"> 150</button>
+                                {% else %}
+                                <button type="button" class="buy-btn" style="background:#555;" disabled>Sin
+                                    saldo</button>
+                                {% endif %}
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+
+        <!-- Pestaña tienda personalizada -->
+        <div id="info-personal" class="tab-content">
+            <button class="btn-add-reward" onclick="document.getElementById('rewardModal').style.display='flex'">
+                Añadir Recompensa
+            </button>
+
+            <div class="shop-grid">
+                {% for reward in custom_rewards %}
+                <div class="shop-item">
+                    {% if reward.image %}
+                    <div class="item-image-placeholder" style="background:#fff; padding:0;">
+                        <img src="{{ reward.image.url }}" alt="{{ reward.title }}"
+                            style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    {% else %}
+                    <div class="item-image-placeholder" style="background:var(--cream);">🎁</div>
+                    {% endif %}
+
+                    <div class="item-content">
+                        <h4 class="item-title">{{ reward.title }}</h4>
+                        <p class="item-desc" style="margin-bottom:10px;">{{ reward.description }}</p>
+                        <p style="font-size:0.8rem; color:#888; margin-bottom:15px; margin-top:0;">Por {{ reward.creator.username }}</p>
+
+                        <form method="POST" action="{% url 'canjear_recompensa' house.slug reward.id %}">
+                            {% csrf_token %}
+                            {% if reward.currency_type == 'points' %}
+                            {% if house.available_points >= reward.price %}
+                            <button type="submit" class="buy-btn"
+                                onclick="return confirm('¿Canjear {{ reward.title }} por {{ reward.price }} puntos comunes?')">
+                                Canjear por <img src="{% static 'img/puntos.png' %}" alt="Pts"
+                                    style="height:1em; vertical-align:-0.1em; margin-right:2px;"> {{ reward.price }}
+                            </button>
+                            {% else %}
+                            <button type="button" class="buy-btn" style="background:#888; cursor:not-allowed;" disabled>
+                                Sin puntos suficientes (<img src="{% static 'img/puntos.png' %}" alt="Pts"
+                                    style="height:0.85em; vertical-align:-0.1em;"> {{ house.available_points }}/{{ reward.price }})
+                            </button>
+                            {% endif %}
+                            {% else %}
+                            {% if user.wallet_balance >= reward.price %}
+                            <button type="submit" class="buy-btn"
+                                style="background:linear-gradient(135deg,#c9a97a,#6b4f2d);"
+                                onclick="return confirm('¿Canjear {{ reward.title }} por {{ reward.price }} saldo personal?')">
+                                Canjear por <img src="{% static 'img/saldo.png' %}" alt="Sld"
+                                    style="height:1em; vertical-align:-0.1em; margin-right:2px;"> {{ reward.price }}
+                            </button>
+                            {% else %}
+                            <button type="button" class="buy-btn" style="background:#888; cursor:not-allowed;" disabled>
+                                Sin saldo suficiente (<img src="{% static 'img/saldo.png' %}" alt="Sld"
+                                    style="height:0.85em; vertical-align:-0.1em;"> {{ user.wallet_balance }}/{{ reward.price }})
+                            </button>
+                            {% endif %}
+                            {% endif %}
+                        </form>
+
+
+                        {% if reward.creator == request.user or request.user == house.owner %}
+                        <form method="POST" action="{% url 'eliminar_recompensa' house.slug reward.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-delete-reward"
+                                onclick="return confirm('¿Seguro que quieres eliminar esta recompensa?')">Eliminar</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div style="grid-column: 1 / -1; text-align:center; padding:40px; color:#888;">
+                    No hay recompensas personalizadas todavía.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Pestaña historial de compras -->
+        <div id="info-historial" class="tab-content">
+            <section class="shop-section">
+                <h3 class="shop-section-title">Historial de Compras de la Casa</h3>
+
+                {% if purchases %}
+                <div style="overflow-x:auto; margin-top:16px;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.95rem;">
+                        <thead>
+                            <tr style="background:#efe9dc; text-align:left;">
+                                <th style="padding:12px 14px; border-bottom:2px solid #d6ccb8; color:#6b4f2d;">Comprador
+                                </th>
+                                <th style="padding:12px 14px; border-bottom:2px solid #d6ccb8; color:#6b4f2d;">Artículo
+                                </th>
+                                <th style="padding:12px 14px; border-bottom:2px solid #d6ccb8; color:#6b4f2d;">Moneda
+                                </th>
+                                <th style="padding:12px 14px; border-bottom:2px solid #d6ccb8; color:#6b4f2d;">Importe
+                                </th>
+                                <th style="padding:12px 14px; border-bottom:2px solid #d6ccb8; color:#6b4f2d;">Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for purchase in purchases %}
+                            <tr style="border-bottom:1px solid #eee; transition: background 0.15s;"
+                                onmouseover="this.style.background='#fdfaf6'" onmouseout="this.style.background=''">
+                                <td style="padding:11px 14px; font-weight:600;">
+                                    {% if purchase.buyer.avatar %}
+                                    <img src="{{ purchase.buyer.avatar.url }}" alt=""
+                                        style="width:24px;height:24px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">
+                                    {% endif %}
+                                    {{ purchase.buyer.username }}
+                                </td>
+                                <td style="padding:11px 14px;">
+                                    {{ purchase.item_name }}
+                                    {% if purchase.is_custom_reward %}<span
+                                        style="font-size:0.75rem; background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:20px; margin-left:4px;">Personalizada</span>{% endif %}
+                                </td>
+                                <td style="padding:11px 14px;">
+                                    {% if purchase.currency_type == 'puntos' %}
+                                    <img src="{% static 'img/puntos.png' %}" alt="Puntos"
+                                        style="height:1em;vertical-align:middle;margin-right:3px;"> Puntos
+                                    {% else %}
+                                    <img src="{% static 'img/saldo.png' %}" alt="Saldo"
+                                        style="height:1em;vertical-align:middle;margin-right:3px;"> Saldo
+                                    {% endif %}
+                                </td>
+                                <td style="padding:11px 14px; font-weight:bold; color:#6b4f2d;">{{ purchase.amount }}
+                                </td>
+                                <td style="padding:11px 14px; color:#888; font-size:0.85rem; white-space:nowrap;">
+                                    {{ purchase.created_at|date:"d/m/Y H:i" }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align:center; padding:60px 20px; color:#888;">
+                    <div style="font-size:3rem; margin-bottom:12px;">🛒</div>
+                    <p style="font-size:1rem;">Aún no hay compras registradas en esta casa.</p>
+                    <p style="font-size:0.9rem; margin-top:6px;">Las compras en la Tienda aparecerán aquí.</p>
+                </div>
+                {% endif %}
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Modal añadir recompensas a la tienda -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <h3>Crear Recompensa</h3>
+            <form method="POST" action="{% url 'crear_recompensa' house.slug %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Título de la recompensa</label>
+                    <input type="text" name="title" required placeholder="Ej. No hacer la cena hoy">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea name="description" required
+                        placeholder="Detalla en qué consiste esta recompensa"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Precio</label>
+                    <input type="number" name="price" value="50" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>¿Cómo se paga?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="currency_type" value="points" checked> Puntos comunes</label>
+                        <label><input type="radio" name="currency_type" value="saldo"> Saldo personal</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Foto (Opcional)</label>
+                    <input type="file" name="image" accept="image/*"
+                        style="border:none; padding:0; background:transparent;">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel"
+                        onclick="document.getElementById('rewardModal').style.display='none'">Cancelar</button>
+                    <button type="submit" class="btn-submit">Crear Recompensa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+        // actualizacion de la tienda automatica
+        let initialStoreChecksum = null;
+        setInterval(() => {
+            fetch("{% url 'api_store_checksum' house.slug %}")
+                .then(r => r.json())
+                .then(data => {
+                    if (data.checksum !== undefined) {
+                        if (initialStoreChecksum === null) {
+                            initialStoreChecksum = data.checksum;
+                        } else if (initialStoreChecksum !== data.checksum) {
+                            window.location.reload();
+                        }
+                    }
+                })
+                .catch(e => console.log('Polling store error:', e));
+        }, 4000);
+    </script>
+</body>
+
+</html>

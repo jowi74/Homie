@@ -1,0 +1,152 @@
+/* RESET */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* BASE */
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: #f5f3ee;
+    color: #3f3a2f;
+}
+
+a {
+    text-decoration: none;
+}
+
+
+/* HEADER */
+
+.header {
+    height: 70px;
+    background-color: #6b4f2d;
+    color: #fdfaf6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+}
+
+
+
+
+/* CONTENIDO */
+
+.dorms-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.dorm-section {
+    margin-bottom: 40px;
+}
+
+.dorm-section h2 {
+    margin-bottom: 20px;
+}
+
+
+/* GRID */
+
+.dorm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+
+/* CARD */
+
+.dorm-card {
+    background-color: #fffaf2;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(120, 90, 50, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+
+
+/* TU DORMITORIO */
+
+.dorm-card.own {
+    border: 2px solid #6b8f71;
+}
+
+
+/* INFO */
+
+.dorm-info {
+    flex: 1;
+}
+
+.dorm-info h3 {
+    margin-bottom: 4px;
+}
+
+.dorm-info p {
+    font-size: 0.9rem;
+    color: #6b5e4a;
+}
+
+
+/* BOTONES */
+
+.btn {
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.primary {
+    background-color: #6b8f71;
+    color: white;
+}
+
+.secondary {
+    background-color: #e6e1d6;
+    color: #3f3a2f;
+}
+
+/* =========================================
+   RESPONSIVE — DORMITORIOS
+   ========================================= */
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 16px;
+        height: 60px;
+    }
+    .dorms-page {
+        padding: 20px 12px;
+    }
+    .dorm-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+    }
+    .dorm-card {
+        padding: 14px;
+        flex-direction: column;
+        text-align: center;
+    }
+    .dorm-info {
+        text-align: center;
+    }
+}
+
+@media (max-width: 400px) {
+    .dorm-grid {
+        grid-template-columns: 1fr;
+    }
+}

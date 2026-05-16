@@ -1,0 +1,185 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chats | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/chats.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <header class="header">
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.15) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+        <a href="{% url 'casa_detalle' house.slug %}" class="btn-pixel">
+            <img src="{% static 'img/logoVolver.png' %}" alt="Volver"
+                style="height:70px; width:auto !important; max-width:none !important; transition: transform 0.2s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));"
+                onmouseover="this.style.transform='scale(1.15) translateX(-5px)'"
+                onmouseout="this.style.transform='scale(1)'">
+        </a>
+    </header>
+
+    <main class="chats-page">
+
+        <section class="chats-header">
+            <h2>💬 Mis chats</h2>
+            <div class="chat-action-btns">
+                <button class="btn-brown" onclick="openPrivateModal()">✉️ Nuevo chat</button>
+                <button class="btn-brown" onclick="openGroupModal()">👥 Nuevo grupo</button>
+            </div>
+        </section>
+
+        <!-- lista de chats -->
+        <section class="chats-list">
+            {% for room in rooms %}
+            {% if room.is_group %}
+            <div class="chat-item group-chat">
+                <a href="{% url 'chat_grupo' house.slug room.slug %}" class="group-link"
+                    style="display:flex; align-items:center; gap:12px; flex:1; text-decoration:none; color:inherit;">
+                    {% if room.image %}
+                    <img src="{{ room.image.url }}" alt="{{ room.name }}"
+                        style="width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid #c9a97a;">
+                    {% else %}
+                    <img src="{% static 'img/interrogante.png' %}" alt="{{ room.name }}"
+                        style="width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid #c9a97a;">
+                    {% endif %}
+                    <div class="chat-info">
+                        <span class="chat-name">{{ room.name }}</span>
+                        <span class="last-message">
+                            {% with last=room.messages.last %}
+                            {% if last %}{{ last.sender.username }}: {{ last.content|truncatechars:40 }}{% else %}Sin
+                            mensajes aún{% endif %}
+                            {% endwith %}
+                        </span>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            {% for other in room.members.all %}{% if other != request.user %}
+            <a href="{% url 'chat_privado' house.slug other.username %}" class="chat-item">
+                <div style="position:relative; display:inline-block; width:55px; height:55px; flex-shrink:0;">
+                    {% if other.avatar %}
+                    <img src="{{ other.avatar.url }}" alt="{{ other.username }}"
+                        style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                    {% else %}
+                    <img src="{% static 'img/profile_default.png' %}" alt="{{ other.username }}"
+                        style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                    {% endif %}
+                    {% if other.equipped_frame %}
+                    <img src="{% static 'img/' %}{{ other.equipped_frame }}" alt="Marco"
+                        style="position:absolute; inset:-8px; width:calc(100% + 16px); height:calc(100% + 16px); object-fit:fill; pointer-events:none; z-index:2;">
+                    {% endif %}
+                </div>
+                <div class="chat-info">
+                    <span class="chat-name">{{ other.username }}</span>
+                    <span class="last-message">
+                        {% with last=room.messages.last %}
+                        {% if last %}{{ last.content|truncatechars:40 }}{% else %}Sin mensajes aún{% endif %}
+                        {% endwith %}
+                    </span>
+                </div>
+            </a>
+            {% endif %}{% endfor %}
+            {% endif %}
+            {% empty %}
+            <p style="text-align:center;color:#888;margin-top:40px;font-size:1rem;">No tienes chats aún. ¡Crea uno con
+                los botones de arriba!</p>
+            {% endfor %}
+        </section>
+
+    </main>
+
+    <!-- Modal crear chat privado -->
+    <div class="modal" id="privateChatModal">
+        <div class="modal-content">
+            <h2>✉️ Nuevo chat privado</h2>
+            <form method="POST" action="{% url 'crear_chat_privado' house.slug %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Selecciona un miembro de la casa</label>
+                    <select name="target_user" required>
+                        {% for member in house.members.all %}
+                        {% if member != request.user %}
+                        <option value="{{ member.username }}">{{ member.username }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cream" onclick="closePrivateModal()">✕ Cancelar</button>
+                    <button type="submit" class="btn-brown">✓ Iniciar chat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal crear chat grupo -->
+    <div class="modal" id="groupChatModal">
+        <div class="modal-content">
+            <h2>Nuevo grupo</h2>
+            <form method="POST" action="{% url 'crear_chat_grupo' house.slug %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Nombre del grupo</label>
+                    <input type="text" name="name" placeholder="Ej: Casa principal" required>
+                </div>
+                <div class="form-group">
+                    <label>Imagen del grupo (opcional)</label>
+                    <input type="file" name="image" accept="image/*"
+                        style="border: 1.5px solid #c9a97a; border-radius:8px; padding:6px; background:#fffdf9; font-size:0.85rem;">
+                </div>
+                <div class="form-group">
+                    <label>Selecciona miembros</label>
+                    <div class="users-list">
+                        {% for member in house.members.all %}
+                        {% if member != request.user %}
+                        <label><input type="checkbox" name="members" value="{{ member.username }}"> {{ member.username }}</label>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cream" onclick="closeGroupModal()">✕ Cancelar</button>
+                    <button type="submit" class="btn-brown">✓ Crear grupo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openPrivateModal() { document.getElementById("privateChatModal").style.display = "flex"; }
+        function closePrivateModal() { document.getElementById("privateChatModal").style.display = "none"; }
+        function openGroupModal() { document.getElementById("groupChatModal").style.display = "flex"; }
+        function closeGroupModal() { document.getElementById("groupChatModal").style.display = "none"; }
+
+        let currentChatsCount = null;
+        async function pollChatsCount() {
+            try {
+                const resp = await fetch("{% url 'api_chats_count' house.slug %}");
+                const data = await resp.json();
+                if (data.count !== undefined) {
+                    if (currentChatsCount === null) {
+                        currentChatsCount = data.count; // primera carga
+                    } else if (data.count !== currentChatsCount) {
+                        window.location.reload(); // se detecto un cambio
+                    }
+                }
+            } catch (e) { }
+        }
+        pollChatsCount();
+        setInterval(pollChatsCount, 4000);
+    </script>
+
+</body>
+
+</html>

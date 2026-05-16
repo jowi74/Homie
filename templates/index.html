@@ -1,0 +1,50 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Homie | Organización del hogar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <!-- header -->
+    <header class="header">
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.15) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+        <nav class="nav">
+            <a href="{% url 'login' %}">Iniciar sesión</a>
+            <a href="{% url 'register' %}" class="btn">Registrarse</a>
+        </nav>
+    </header>
+
+    <!-- main -->
+    <main class="hero">
+        <h2>Organiza tu hogar.<br>Diviértete haciéndolo.</h2>
+        <p>
+            Divierte y entretente con tus familiares o amigos mientras organizas tu hogar.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="{% url 'register' %}" class="btn primary">Empezar ahora</a>
+            <a href="{% url 'login' %}" class="btn secondary">Ya tengo cuenta</a>
+        </div>
+    </main>
+
+    <!-- footer -->
+    <footer class="footer">
+        <p>© 2025-2026 Homie · Proyecto TFG</p>
+    </footer>
+
+</body>
+
+</html>

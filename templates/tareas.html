@@ -1,0 +1,190 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tareas | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/tareas.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <header class="header">
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.15) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+        <a href="{% url 'casa_detalle' house.slug %}" class="btn-pixel">
+            <img src="{% static 'img/logoVolver.png' %}" alt="Volver"
+                style="height:70px; width:auto !important; max-width:none !important; transition: transform 0.2s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));"
+                onmouseover="this.style.transform='scale(1.15) translateX(-5px)'"
+                onmouseout="this.style.transform='scale(1)'">
+        </a>
+    </header>
+
+    <main class="tasks-page">
+
+        <div class="tasks-page-header">
+            <h2>🧹 Tareas del hogar</h2>
+            <button class="btn-add-task" onclick="openModal()">
+                <span class="plus-icon">＋</span> Añadir tarea
+            </button>
+        </div>
+
+        <!-- Seccion tareas pendientes -->
+        {% if pending_tasks %}
+        <p class="section-label">Pendientes</p>
+        {% for task in pending_tasks %}
+        <div class="task-card">
+            {% if not task.assigned_to or task.assigned_to == request.user %}
+            <form method="post" action="{% url 'marcar_tarea_completada' house.slug task.id %}">
+                {% csrf_token %}
+                <button class="btn-check" title="Marcar como hecha">✓</button>
+            </form>
+            {% else %}
+            <button class="btn-check" disabled title="Solo {{ task.assigned_to.username }} puede completar esta tarea"
+                style="opacity:0.35; cursor:not-allowed;">✓</button>
+            {% endif %}
+            <div class="task-info">
+                <p class="task-title">{{ task.title }}</p>
+                <p class="task-assigned">Asignado a: <strong>{% if task.assigned_to %}{{ task.assigned_to.username }}{% else %}Toda la casa{% endif %}</strong></p>
+            </div>
+            <span class="task-points"><img src="{% static 'img/puntos.png' %}" alt="Puntos"
+                    style="height:0.85em; vertical-align:-0.1em; margin-right:2px;"> {{ task.points }} pts</span>
+            <form method="post" action="{% url 'eliminar_tarea' house.slug task.id %}">
+                {% csrf_token %}
+                <button class="btn-delete" title="Eliminar tarea"
+                    onclick="return confirm('¿Eliminar esta tarea?')">🗑</button>
+            </form>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Seccion tareas incompletas -->
+        {% if incomplete_tasks %}
+        <p class="section-label" style="color:#d35400;">Incompletas</p>
+        {% for task in incomplete_tasks %}
+        <div class="task-card" style="border-color:#f39c12; background:#fdfae2;">
+            {% if not task.assigned_to or task.assigned_to == request.user %}
+            <form method="post" action="{% url 'marcar_tarea_completada' house.slug task.id %}">
+                {% csrf_token %}
+                <button class="btn-check" style="border-color:#e67e22;"
+                    title="Marcar como hecha de nuevo (no sumará puntos)">✓</button>
+            </form>
+            {% else %}
+            <button class="btn-check" disabled title="Solo {{ task.assigned_to.username }} puede completar esta tarea"
+                style="opacity:0.35; cursor:not-allowed; border-color:#e67e22;">✓</button>
+            {% endif %}
+            <div class="task-info">
+                <p class="task-title" style="color:#e67e22;">{{ task.title }}</p>
+                <p class="task-assigned">Asignado a: <strong>{% if task.assigned_to %}{{ task.assigned_to.username }}{% else %}Toda la casa{% endif %}</strong></p>
+            </div>
+            <span class="task-points" style="background:#e67e22; opacity:0.75;"
+                title="Los puntos ya fueron asignados previamente">Sin recompensa</span>
+            <form method="post" action="{% url 'eliminar_tarea' house.slug task.id %}">
+                {% csrf_token %}
+                <button class="btn-delete" title="Eliminar tarea"
+                    onclick="return confirm('¿Eliminar esta tarea?')">🗑</button>
+            </form>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Seccion tareas completadas -->
+        {% if completed_tasks %}
+        <p class="section-label" style="color:#558b2f;">Completadas</p>
+        {% for task in completed_tasks %}
+        <div class="task-card done">
+            <form method="post" action="{% url 'deshacer_tarea' house.slug task.id %}">
+                {% csrf_token %}
+                <button class="btn-check" title="Deshacer (mover a incompletas)">✓</button>
+            </form>
+            <div class="task-info">
+                <p class="task-title">{{ task.title }}</p>
+                <p class="task-assigned">Asignado a: <strong>{% if task.assigned_to %}{{ task.assigned_to.username }}{% else %}Toda la casa{% endif %}</strong></p>
+            </div>
+            <span class="task-points"><img src="{% static 'img/puntos.png' %}" alt="Puntos"
+                    style="height:0.85em; vertical-align:-0.1em; margin-right:2px;"> {{ task.points }} pts</span>
+            <form method="post" action="{% url 'eliminar_tarea' house.slug task.id %}">
+                {% csrf_token %}
+                <button class="btn-delete" title="Eliminar tarea"
+                    onclick="return confirm('¿Eliminar esta tarea?')">🗑</button>
+            </form>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if not tasks %}
+        <p style="text-align:center; color:#aaa; margin-top:40px; font-size:1rem;">Aun no hay tareas asignadas
+        </p>
+        {% endif %}
+
+    </main>
+
+    <!-- modal para crear tareas -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <h2>➕ Nueva tarea</h2>
+            <form method="post" action="{% url 'lista_tareas' house.slug %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Nombre de la tarea</label>
+                    <input type="text" name="title" placeholder="Ej: Limpiar cocina" required>
+                </div>
+                <div class="form-group">
+                    <label>Asignar a</label>
+                    <select name="assigned_to">
+                        <option value="">Toda la casa</option>
+                        {% for member in house.members.all %}
+                        <option value="{{ member.username }}">{{ member.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Puntos de recompensa</label>
+                    <select name="points" required>
+                        <option value="10">10 puntos</option>
+                        <option value="25">25 puntos</option>
+                        <option value="50">50 puntos</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">✕ Cancelar</button>
+                    <button type="submit" class="btn-confirm">✓ Crear tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal() { document.getElementById("taskModal").style.display = "flex"; }
+        function closeModal() { document.getElementById("taskModal").style.display = "none"; }
+
+        // Recargar automaticamente
+        let initialTaskChecksum = null;
+        setInterval(() => {
+            fetch("{% url 'api_tasks_checksum' house.slug %}")
+                .then(r => r.json())
+                .then(data => {
+                    if (data.checksum !== undefined) {
+                        if (initialTaskChecksum === null) {
+                            initialTaskChecksum = data.checksum;
+                        } else if (initialTaskChecksum !== data.checksum) {
+                            window.location.reload();
+                        }
+                    }
+                })
+                .catch(e => console.log('Polling tasks error:', e));
+        }, 4000);
+    </script>
+
+</body>
+
+</html>

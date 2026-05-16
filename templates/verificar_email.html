@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sigue los pasos | Homie</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/verificar.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="logo">Homie</div>
+    <p class="subtitle">
+        Por seguridad, hemos enviado un código de 6 dígitos a <br>
+        <span class="email-display">{{ email }}</span>.
+    </p>
+
+    {% if error %}
+        {% if 'éxito' in error %}
+            <div class="success-message">{{ error }}</div>
+        {% else %}
+            <div class="error-message">⚠️ {{ error }}</div>
+        {% endif %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="verify">
+        
+        <div class="code-input-group">
+            <input type="text" name="code" class="code-input" maxlength="6" pattern="\d{6}" placeholder="Introduce código" required autocomplete="off" autofocus>
+        </div>
+
+        <button type="submit" class="btn-submit">Verificar Cuenta</button>
+    </form>
+
+    <form method="POST" style="margin-top: 1rem;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="resend">
+        <button type="submit" class="btn-resend" onclick="this.innerText='Enviando...';">No he recibido el código, reenviar</button>
+    </form>
+    
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'register' %}" style="color: #888; font-size: 0.85rem; text-decoration: none;">← Cancelar registro</a>
+    </div>
+</div>
+
+<script>
+    // Permitir solo números en el input
+    document.querySelector('.code-input').addEventListener('input', function (e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+</script>
+
+</body>
+</html>

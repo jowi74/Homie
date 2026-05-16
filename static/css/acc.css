@@ -1,0 +1,145 @@
+/* RESET */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* BASE */
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #8fae8f, #c7d6b8);
+    min-height: 100vh;
+}
+
+
+/* CONTENEDOR */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+
+/* CARD */
+
+.auth-card {
+    background-color: #fdfaf6;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 14px;
+    box-shadow: 0 20px 40px rgba(60, 50, 30, 0.2);
+    text-align: center;
+}
+
+
+/* LOGO */
+
+.logo {
+    font-size: 2rem;
+    color: #4b6f44;
+    margin-bottom: 10px;
+}
+
+
+/* TITULOS */
+
+.auth-card h2 {
+    margin-bottom: 25px;
+    color: #3f3a2f;
+}
+
+
+/* FORMULARIO */
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    color: #6b705c;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #b7c4a3;
+    font-size: 1rem;
+    background-color: #f7f5ef;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #7a9b6c;
+}
+
+
+/* BOTÓN */
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.primary {
+    background-color: #7a9b6c;
+    color: #ffffff;
+}
+
+.primary:hover {
+    background-color: #5f7f55;
+}
+
+
+/* LINKS */
+
+.auth-link {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #5f5b4c;
+}
+
+.auth-link a {
+    color: #7a9b6c;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* =========================================
+   RESPONSIVE — LOGIN / REGISTRO
+   ========================================= */
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 28px 20px;
+        margin: 0 12px;
+    }
+    .logo {
+        font-size: 1.7rem;
+    }
+    .auth-card h2 {
+        font-size: 1.2rem;
+        margin-bottom: 18px;
+    }
+}

@@ -1,0 +1,159 @@
+/* =========================================
+   TIENDA CSS - OPTIMIZADO
+   ========================================= */
+
+:root {
+    --brown-dark:  #4a3520;
+    --brown-mid:   #6b4f2d;
+    --brown-light: #a9845c;
+    --cream:       #fdfaf6;
+    --cream-card:  #f5efe6;
+    --accent:      #c9a97a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: var(--cream-card);
+    color: var(--brown-dark);
+}
+
+/* ── Header general ─────────────────────── */
+.header {
+    height: 70px;
+    background-color: var(--brown-mid);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+}
+
+.btn-pixel {
+    background: none; border: none; cursor: pointer;
+}
+
+.btn-pixel img {
+    width: 40px;
+    image-rendering: pixelated;
+}
+
+/* ── LAYOUT DE LA TIENDA ─────────────────────── */
+.shop-page { max-width: 800px; margin: 0 auto; padding: 24px 16px 120px; }
+.shop-header-row { display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px; }
+.shop-header-row h2 { margin:0; font-size:1.8rem; color:var(--brown-dark); }
+.shop-balances { display:flex; gap:12px; }
+.balance-badge { background:var(--cream); border:1.5px solid var(--accent); padding:8px 16px; border-radius:12px; font-weight:700; color:var(--brown-dark); box-shadow:0 4px 10px rgba(0,0,0,0.05); cursor:help; }
+
+.shop-section { margin-bottom: 40px; }
+.shop-section-title { font-size:1.2rem; color:var(--brown-mid); margin-bottom: 16px; border-bottom: 2px solid var(--accent); padding-bottom: 6px; }
+
+.shop-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px; }
+
+/* ── CARDS DE PRODUCTOS ─────────────────────── */
+.shop-item { background:var(--cream-card); border-radius:16px; overflow:hidden; border:1.5px solid var(--accent); display:flex; flex-direction:column; transition:transform 0.2s, box-shadow 0.2s; }
+.shop-item:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(107,79,45,0.2); }
+.item-image-placeholder { height:120px; background:linear-gradient(135deg, #e0cdb0, #c9a97a); display:flex; justify-content:center; align-items:center; font-size:3rem; }
+.item-content { padding: 20px; flex:1; display:flex; flex-direction:column; }
+.item-title { font-size:1.15rem; font-weight:800; color:var(--brown-dark); margin:0 0 8px; }
+.item-desc { font-size:0.9rem; color:#6b4f2d; margin:0 0 20px; line-height:1.4; flex:1; }
+
+.buy-btn { width:100%; border:none; padding:12px; border-radius:10px; font-weight:700; font-size:1rem; cursor:pointer; background:var(--brown-mid); color:var(--cream); transition:background 0.2s; display:flex; justify-content:center; align-items:center; gap:8px; }
+.buy-btn:hover:not(:disabled) { background:var(--brown-dark); }
+.buy-btn:disabled { background:#ccc; cursor:not-allowed; }
+.btn-owned { background:#4caf50 !important; cursor:default !important; }
+.btn-owned:hover { background:#4caf50 !important; }
+
+/* ── TABS ─────────────────────── */
+.tabs { display:flex; gap:10px; margin-bottom:20px; border-bottom:2px solid var(--accent); padding-bottom:10px; }
+.tab-btn { background:transparent; border:none; color:var(--brown-mid); font-size:1.1rem; font-weight:700; padding:8px 16px; border-radius:8px; cursor:pointer; transition:background 0.2s, color 0.2s; }
+.tab-btn.active { background:var(--brown-mid); color:var(--cream); }
+.tab-btn:hover:not(.active) { background:var(--cream-card); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* ── RECOMPENSAS PERSONALES ─────────────────────── */
+.btn-add-reward { background:var(--brown-dark); color:var(--cream); border:none; padding:10px 20px; border-radius:10px; font-weight:700; cursor:pointer; transition:transform 0.15s; margin-bottom:20px; display:inline-flex; align-items:center; gap:8px; }
+.btn-add-reward:hover { transform:scale(1.05); }
+
+/* ── MODALES ─────────────────────── */
+.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center; }
+.modal-content { background:var(--cream); border-radius:16px; padding:30px; width:90%; max-width:450px; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
+.modal-content h3 { margin-top:0; color:var(--brown-dark); font-size:1.4rem; margin-bottom:20px; }
+.form-group { margin-bottom:15px; }
+.form-group label { display:block; margin-bottom:5px; font-weight:700; color:var(--brown-mid); font-size:0.9rem; }
+.form-group input, .form-group textarea, .form-group select { width:100%; border:1.5px solid var(--accent); border-radius:8px; padding:10px; background:#fffdf9; font-size:0.95rem; color:var(--brown-dark); font-family:inherit; }
+.form-group textarea { resize:vertical; min-height:80px; }
+.radio-group { display:flex; gap:15px; }
+.radio-group label { font-weight:normal; display:flex; align-items:center; gap:5px; cursor:pointer; }
+.modal-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:25px; }
+.btn-cancel { background:#f0e6d3; color:var(--brown-dark); border:1px solid var(--accent); padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer; }
+.btn-submit { background:var(--brown-mid); color:var(--cream); border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer; }
+.btn-delete-reward { background:#ffcccb; color:#d32f2f; border:1px solid #ef5350; padding:6px 12px; border-radius:6px; font-weight:700; cursor:pointer; align-self:flex-start; margin-top:10px; width:100%; text-align:center; }
+.btn-delete-reward:hover { background:#ef5350; color:white; }
+
+/* =========================================
+   RESPONSIVE — TIENDA
+   ========================================= */
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 16px;
+        height: 60px;
+    }
+    .shop-page {
+        padding: 16px 12px 80px;
+    }
+    .shop-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .shop-header-row h2 {
+        font-size: 1.4rem;
+    }
+    .shop-balances {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .shop-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+    }
+    /* Tabs scrollable en horizontal */
+    .tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 8px;
+    }
+    .tab-btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    /* Modal */
+    .modal-content {
+        width: 94%;
+        padding: 22px 16px;
+    }
+    .modal-actions {
+        flex-direction: column;
+    }
+    .modal-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .shop-grid {
+        grid-template-columns: 1fr;
+    }
+    .balance-badge {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+    }
+}
+

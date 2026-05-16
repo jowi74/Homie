@@ -1,0 +1,180 @@
+/* RESET */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* BASE */
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: #f5f3ee;
+    /* papel cálido */
+    color: #3f3a2f;
+    /* tierra */
+}
+
+
+/* HEADER */
+
+.header {
+    height: 70px;
+    background-color: #6b4f2d;
+    /* madera oscura */
+    color: #fffaf2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+}
+
+.logo {
+    font-size: 1.5rem;
+}
+
+
+/* BOTÓN */
+
+.btn-pixel img {
+    width: 40px;
+    image-rendering: pixelated;
+}
+
+
+/* CONTENEDOR */
+
+.ranking-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.ranking-page h2 {
+    margin-bottom: 30px;
+    color: #3f3a2f;
+}
+
+
+/* TARJETA */
+
+.ranking-card {
+    background-color: #fffaf2;
+    /* papel viejo */
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.ranking-card h3 {
+    margin-bottom: 15px;
+    color: #6b4f2d;
+}
+
+
+/* LISTA */
+
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+/* ITEM */
+
+.ranking-item {
+    display: grid;
+    grid-template-columns: 40px 50px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    background-color: #dfece5;
+    /* verde menta apagado */
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.ranking-item img {
+    width: 40px;
+    image-rendering: pixelated;
+}
+
+
+/* POSICIÓN */
+
+.position {
+    font-weight: bold;
+    text-align: center;
+    color: #6b4f2d;
+}
+
+
+/* NOMBRE */
+
+.name {
+    font-weight: 500;
+    color: #3f3a2f;
+}
+
+
+/* SCORE */
+
+.score {
+    color: #d4a017;
+    /* oro suave */
+    font-weight: bold;
+}
+
+
+/* PRIMERO */
+
+.ranking-item.first {
+    background-color: #6b8f71;
+    /* verde musgo */
+    color: #fffaf2;
+}
+
+.ranking-item.first .score {
+    color: #fde68a;
+}
+
+/* =========================================
+   RESPONSIVE — RANKING
+   ========================================= */
+
+@media (max-width: 600px) {
+    .ranking-page {
+        padding: 20px 12px;
+    }
+
+    .ranking-item {
+        grid-template-columns: 30px 1fr auto;
+        grid-template-rows: auto auto;
+        gap: 6px;
+    }
+
+    /* Imagen ocupa 2 filas */
+    .ranking-item img {
+        grid-row: 1 / 3;
+        width: 32px;
+    }
+
+    .name {
+        font-size: 0.9rem;
+    }
+    .score {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .ranking-item {
+        grid-template-columns: 26px 1fr auto;
+    }
+    .ranking-item img {
+        width: 26px;
+    }
+}

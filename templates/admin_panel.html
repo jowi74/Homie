@@ -1,0 +1,348 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>⚙️ Panel de Administración | Homie</title>
+    <style>
+        :root {
+            --brown-dark: #4a3520;
+            --brown-mid: #6b4f2d;
+            --brown-light: #a9845c;
+            --cream: #fdfaf6;
+            --cream-card: #f5efe6;
+            --accent: #c9a97a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--cream-card);
+            color: var(--brown-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            height: 70px;
+            background-color: var(--brown-mid);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        h1 {
+            color: var(--brown-dark);
+            font-size: 2rem;
+            margin-top: 0;
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            margin-top: 40px;
+            color: var(--brown-mid);
+        }
+
+        /* Mensajes de flash */
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        /* Estilos de tabla */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--cream);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ebd9c5;
+        }
+
+        th {
+            background: #e0cdb0;
+            font-weight: 700;
+            color: #4a3520;
+        }
+
+        tr:hover {
+            background: #fdfaf6;
+        }
+
+        /* Botones e inputs */
+        input[type="number"],
+        select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            width: 80px;
+        }
+
+        button,
+        .btn {
+            background: var(--brown-mid);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--brown-dark);
+        }
+
+        .btn-danger {
+            background: #e53935;
+        }
+
+        .btn-danger:hover {
+            background: #c62828;
+        }
+
+        .btn-success {
+            background: #43a047;
+        }
+
+        .btn-success:hover {
+            background: #2e7d32;
+        }
+
+        .btn-warning {
+            background: #fb8c00;
+            color: white;
+        }
+
+        .action-form {
+            display: inline-flex;
+            gap: 5px;
+            align-items: center;
+        }
+    </style>
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <header class="header">
+        <div style="font-size: 1.5rem; font-weight: bold;">Homie Admin</div>
+        <a href="{% url 'inicio' %}" class="btn" style="background:var(--brown-dark); text-decoration:none;">⬅ Volver al
+            portal</a>
+    </header>
+
+    <div class="container">
+        <h1>Panel de Administración Global</h1>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Seccion usuarios -->
+        <h2>1. Gestión de Usuarios</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Saldo</th>
+                <th>Acciones Rápidas</th>
+            </tr>
+            {% for u in usuarios %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td><strong>{{ u.username }}</strong><br><small>{{ u.email }}</small></td>
+                <td>
+                    {% if u.is_superuser %}<span style="color:#d32f2f; font-weight:bold;">SuperAdmin</span>
+                    {% elif u.is_staff %}<span style="color:#1976d2; font-weight:bold;">Staff</span>
+                    {% else %}Jugador{% endif %}
+                </td>
+                <td>{{ u.wallet_balance }} Sld.</td>
+                <td style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+
+                    <!-- Dar Saldo -->
+                    <form method="POST" class="action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="give_wallet">
+                        <input type="hidden" name="user_id" value="{{ u.username }}">
+                        <input type="number" name="amount" value="500" min="1">
+                        <button type="submit" class="btn-success">Dar Saldo</button>
+                    </form>
+
+                    <!-- Activar administrador -->
+                    <form method="POST" class="action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="toggle_staff">
+                        <input type="hidden" name="user_id" value="{{ u.username }}">
+                        {% if u.is_staff %}
+                        <button type="submit" class="btn-warning">Quitar Staff</button>
+                        {% else %}
+                        <button type="submit">Hacer Staff</button>
+                        {% endif %}
+                    </form>
+
+                    <!-- Desbloquear dormitorio -->
+                    <form method="POST" class="action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="unlock_all_bedroom">
+                        <input type="hidden" name="user_id" value="{{ u.username }}">
+                        <button type="submit" class="btn-warning" title="Desbloquear pared, alfombra y póster"
+                            onclick="return confirm('¿Desbloquear dormitorio(s) de este usuario?')">🔓 Desbloq.
+                            Dormitorio</button>
+                    </form>
+
+                    <!-- Eliminar -->
+                    {% if not u.is_superuser %}
+                    <form method="POST" class="action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_user">
+                        <input type="hidden" name="user_id" value="{{ u.username }}">
+                        <button type="submit" class="btn-danger"
+                            onclick="return confirm('¿Seguro que quieres borrar a {{ u.username }} PERMANENTEMENTE?')">🗑
+                            Eliminar</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <!-- Seccion de casas -->
+        <h2>2. Gestión de Casas</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Miembros</th>
+                <th>Puntos Comunes</th>
+                <th>Acciones</th>
+            </tr>
+            {% for h in casas %}
+            <tr>
+                <td>{{ h.slug }}</td>
+                <td><strong>{{ h.name }}</strong></td>
+                <td>{{ h.members.count }}</td>
+                <td>{{ h.available_points }} pts.</td>
+                <td style="display:flex; gap:10px;">
+                    <!-- Dar puntos -->
+                    <form method="POST" class="action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="give_house_coins">
+                        <input type="hidden" name="house_slug" value="{{ h.slug }}">
+                        <input type="number" name="amount" value="1000" min="1">
+                        <button type="submit" class="btn-success">+ Puntos</button>
+                    </form>
+
+                    <!-- Eliminar casa -->
+                    <form method="POST" class="action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_house">
+                        <input type="hidden" name="house_slug" value="{{ h.slug }}">
+                        <button type="submit" class="btn-danger"
+                            onclick="return confirm('¡ADVERTENCIA! ¿Se borrará la casa {{ h.name }} completamente?')">🗑
+                            Eliminar Hogar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <!-- Seccion de perfiles -->
+        <h2>3. Estadísticas por Jugador/Casa</h2>
+        <table>
+            <tr>
+                <th>Usuario</th>
+                <th>Casa</th>
+                <th>Puntos Totales</th>
+                <th>Tareas Hechas</th>
+                <th>Compras Hechas</th>
+                <th>Subir Estadísticas Directamente</th>
+            </tr>
+            {% for p in perfiles %}
+            <tr>
+                <td><strong>{{ p.user.username }}</strong></td>
+                <td><span style="color:var(--brown-mid)">{{ p.house.name }}</span></td>
+                <td>{{ p.points }}</td>
+                <td>{{ p.completed_tasks_count }}</td>
+                <td>{{ p.completed_shopping_count }}</td>
+                <td style="display:flex; gap:10px; flex-wrap:wrap;">
+
+                    <!-- Sumar puntos perfil -->
+                    <form method="POST" class="action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="give_house_points">
+                        <input type="hidden" name="profile_id" value="{{ p.id }}">
+                        <input type="number" name="amount" value="50" min="1" placeholder="Pts">
+                        <button type="submit">Pts</button>
+                    </form>
+
+                    <!-- Sumar tareas -->
+                    <form method="POST" class="action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="boost_tasks">
+                        <input type="hidden" name="profile_id" value="{{ p.id }}">
+                        <input type="number" name="amount" value="5" min="1" placeholder="Nº">
+                        <button type="submit" style="background:#558b2f">Subir Tareas</button>
+                    </form>
+
+                    <!-- Sumar compras -->
+                    <form method="POST" class="action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="boost_shopping">
+                        <input type="hidden" name="profile_id" value="{{ p.id }}">
+                        <input type="number" name="amount" value="5" min="1" placeholder="Nº">
+                        <button type="submit" style="background:#0277bd">Subir Compras</button>
+                    </form>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar sesión | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/acc.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <main class="auth-container">
+
+        <section class="auth-card">
+            <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.15) translateY(-2px)'" onmouseout="this.style.transform='scale(1)'">
+    <img src="{% static 'img/logo.png' %}" alt="Homie Logo" style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+</a>
+            <h2>Iniciar sesión</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+
+                <div class="form-group">{{ form.username.label_tag }} {{ form.username }}</div>
+                <div class="form-group">{{ form.password.label_tag }} {{ form.password }}</div>
+
+                <button type="submit" class="btn primary">Entrar</button>
+            </form>
+
+            <p class="auth-link" style="margin-bottom: 25px;">
+                <a href="{% url 'forgot_password' %}" style="font-size: 0.9rem;">¿Has olvidado tu contraseña?</a>
+            </p>
+
+            <p class="auth-link">
+                ¿No tienes cuenta?
+                <a href="{% url 'register' %}">Regístrate</a>
+            </p>
+        </section>
+
+    </main>
+
+</body>
+
+</html>

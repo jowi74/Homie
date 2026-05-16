@@ -1,0 +1,130 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de la compra | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/compra.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <header class="header">
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.15) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+        <a href="{% url 'casa_detalle' house.slug %}" class="btn-pixel">
+            <img src="{% static 'img/logoVolver.png' %}" alt="Volver"
+                style="height:70px; width:auto !important; max-width:none !important; transition: transform 0.2s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));"
+                onmouseover="this.style.transform='scale(1.15) translateX(-5px)'"
+                onmouseout="this.style.transform='scale(1)'">
+        </a>
+    </header>
+
+    <main class="shopping-page">
+
+        <div class="page-header-row">
+            <h2>🛒 Lista de la compra</h2>
+            <button class="btn-add" onclick="openModal()">＋ Añadir</button>
+        </div>
+
+        {% if items %}
+        <p class="item-count">{{ items.count }} producto{% if items.count != 1 %}s{% endif %} en la lista</p>
+
+        <!-- Recompensa -->
+        <div class="reward-banner">
+            <span class="reward-icon"><img src="{% static 'img/puntos.png' %}" alt="Puntos"
+                    style="height:0.85em; vertical-align:-0.1em;"></span>
+            <span>Completar la compra te dará <strong>+30 puntos</strong> + <strong>{{ items.count }} pts extra</strong>
+                (uno por producto)</span>
+        </div>
+        {% endif %}
+
+        <!-- Lista -->
+        <div class="shopping-list">
+            {% for item in items %}
+            <div class="shopping-item">
+                <div class="item-bullet"></div>
+                <span class="item-name">{{ item.name }}{% if item.quantity %} <span style="font-size:0.85rem; color:#a9845c; font-weight:bold; margin-left:6px;">({{ item.quantity }})</span>{% endif %}</span>
+                <form method="post" action="{% url 'eliminar_item_compra' house.slug item.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete-item" title="Eliminar"
+                        onclick="return confirm('¿Quitar {{ item.name }} de la lista?')">🗑</button>
+                </form>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <div class="empty-icon">🛒</div>
+                <p>La lista está vacía.<br>¡Añade tu primer producto!</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Botón para completar la compra -->
+        {% if items %}
+        <form method="post" action="{% url 'completar_compra' house.slug %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-complete"
+                onclick="return confirm('¿Marcar toda la compra como completada? Se vaciará la lista.')">
+                ✅ ¡Compra completada! +30 pts
+            </button>
+        </form>
+        {% endif %}
+
+    </main>
+
+    <!-- Modal para añadir producto -->
+    <div class="modal" id="shoppingModal">
+        <div class="modal-content">
+            <h2>Añadir producto</h2>
+            <form method="post" action="{% url 'lista_compra' house.slug %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Nombre del producto</label>
+                    <input type="text" name="name" placeholder="Ej: Huevos, Leche, Pan…" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label>Cantidad <span style="font-weight:normal; color:#999;">(opcional)</span></label>
+                    <input type="text" name="quantity" placeholder="Ej: 2, 500g, 1 caja…">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel-modal" onclick="closeModal()">✕ Cancelar</button>
+                    <button type="submit" class="btn-confirm">✓ Añadir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal() { document.getElementById("shoppingModal").style.display = "flex"; }
+        function closeModal() { document.getElementById("shoppingModal").style.display = "none"; }
+
+        // Actualizar automaticamente la lista
+        let initialShoppingChecksum = null;
+        setInterval(() => {
+            fetch("{% url 'api_shopping_checksum' house.slug %}")
+                .then(r => r.json())
+                .then(data => {
+                    if (data.checksum !== undefined) {
+                        if (initialShoppingChecksum === null) {
+                            initialShoppingChecksum = data.checksum;
+                        } else if (initialShoppingChecksum !== data.checksum) {
+                            window.location.reload();
+                        }
+                    }
+                })
+                .catch(e => console.log('Error al actualizar la lista de la compra:', e));
+        }, 4000);
+    </script>
+
+</body>
+
+</html>

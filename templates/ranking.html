@@ -1,0 +1,188 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ranking | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/ranking.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <header class="header">
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.15) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+
+        <a href="{% url 'casa_detalle' house.slug %}" class="btn-pixel">
+            <img src="{% static 'img/logoVolver.png' %}" alt="Volver"
+                style="height:70px; width:auto !important; max-width:none !important; transition: transform 0.2s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));"
+                onmouseover="this.style.transform='scale(1.15) translateX(-5px)'"
+                onmouseout="this.style.transform='scale(1)'">
+        </a>
+    </header>
+
+    <main class="ranking-page" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        <h2 style="text-align: center; margin-bottom: 30px; font-size: 2rem; color: #a9845c;">Rankings del mes</h2>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+
+            <!-- ranking puntos -->
+            <section class="ranking-card" style="flex: 1; min-width: 320px;">
+                <h3 style="background: #a9845c; color: white; border-radius: 8px; padding: 10px; margin-top: -10px;">
+                    <img src="{% static 'img/puntos.png' %}" alt="Puntos"
+                        style="height:0.85em; vertical-align:-0.1em; margin-right:4px;"> Puntos totales</h3>
+                <div class="ranking-list">
+                    {% for profile in profiles_points %}
+                    <div class="ranking-item {% if forloop.first %}first{% endif %}">
+                        <span class="position">{{ forloop.counter }}</span>
+                        <div
+                            style="position:relative; display:inline-block; width:46px; height:46px; flex-shrink:0; justify-self:center;">
+                            {% if profile.user.avatar %}
+                            <img src="{{ profile.user.avatar.url }}" alt="Usuario"
+                                style="width:100% !important; height:100% !important; border-radius:50%; object-fit:cover;">
+                            {% else %}
+                            <img src="{% static 'img/profile_default.png' %}" alt="Usuario"
+                                style="width:100% !important; height:100% !important; border-radius:50%; object-fit:cover;">
+                            {% endif %}
+                            {% if profile.user.equipped_frame %}
+                            <img src="{% static 'img/' %}{{ profile.user.equipped_frame }}" alt="Marco"
+                                style="position:absolute; inset:-8px; width:calc(100% + 16px) !important; height:calc(100% + 16px) !important; object-fit:fill; pointer-events:none; z-index:2; max-width:none;">
+                            {% endif %}
+                        </div>
+                        <span class="name">
+                            {% if profile.nickname %}{{ profile.nickname }}{% else %}{{ profile.user.username }}{% endif %}
+                        </span>
+                        <span class="score">{{ profile.points }} pts</span>
+                    </div>
+                    {% empty %}
+                    <p>No hay miembros en la casa.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- ranking tareas -->
+            <section class="ranking-card" style="flex: 1; min-width: 320px;">
+                <h3 style="background: #6b4f2d; color: white; border-radius: 8px; padding: 10px; margin-top: -10px;">
+                    Tareas Limpieza</h3>
+                <div class="ranking-list">
+                    {% for profile in profiles_tasks %}
+                    <div class="ranking-item {% if forloop.first %}first{% endif %}">
+                        <span class="position">{{ forloop.counter }}</span>
+                        <div
+                            style="position:relative; display:inline-block; width:46px; height:46px; flex-shrink:0; justify-self:center;">
+                            {% if profile.user.avatar %}
+                            <img src="{{ profile.user.avatar.url }}" alt="Usuario"
+                                style="width:100% !important; height:100% !important; border-radius:50%; object-fit:cover;">
+                            {% else %}
+                            <img src="{% static 'img/profile_default.png' %}" alt="Usuario"
+                                style="width:100% !important; height:100% !important; border-radius:50%; object-fit:cover;">
+                            {% endif %}
+                            {% if profile.user.equipped_frame %}
+                            <img src="{% static 'img/' %}{{ profile.user.equipped_frame }}" alt="Marco"
+                                style="position:absolute; inset:-8px; width:calc(100% + 16px) !important; height:calc(100% + 16px) !important; object-fit:fill; pointer-events:none; z-index:2; max-width:none;">
+                            {% endif %}
+                        </div>
+                        <span class="name">
+                            {% if profile.nickname %}{{ profile.nickname }}{% else %}{{ profile.user.username }}{% endif %}
+                        </span>
+                        <span class="score">{{ profile.completed_tasks_count }}</span>
+                    </div>
+                    {% empty %}
+                    <p>No hay miembros en la casa.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- ranking compras -->
+            <section class="ranking-card" style="flex: 1; min-width: 320px;">
+                <h3 style="background: #3f2c17; color: white; border-radius: 8px; padding: 10px; margin-top: -10px;">
+                    Viajes al súper</h3>
+                <div class="ranking-list">
+                    {% for profile in profiles_shopping %}
+                    <div class="ranking-item {% if forloop.first %}first{% endif %}">
+                        <span class="position">{{ forloop.counter }}</span>
+                        <div
+                            style="position:relative; display:inline-block; width:46px; height:46px; flex-shrink:0; justify-self:center;">
+                            {% if profile.user.avatar %}
+                            <img src="{{ profile.user.avatar.url }}" alt="Usuario"
+                                style="width:100% !important; height:100% !important; border-radius:50%; object-fit:cover;">
+                            {% else %}
+                            <img src="{% static 'img/profile_default.png' %}" alt="Usuario"
+                                style="width:100% !important; height:100% !important; border-radius:50%; object-fit:cover;">
+                            {% endif %}
+                            {% if profile.user.equipped_frame %}
+                            <img src="{% static 'img/' %}{{ profile.user.equipped_frame }}" alt="Marco"
+                                style="position:absolute; inset:-8px; width:calc(100% + 16px) !important; height:calc(100% + 16px) !important; object-fit:fill; pointer-events:none; z-index:2; max-width:none;">
+                            {% endif %}
+                        </div>
+                        <span class="name">
+                            {% if profile.nickname %}{{ profile.nickname }}{% else %}{{ profile.user.username }}{% endif %}
+                        </span>
+                        <span class="score">{{ profile.completed_shopping_count }}</span>
+                    </div>
+                    {% empty %}
+                    <p>No hay miembros en la casa.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+        </div>
+
+        <h2 style="text-align: center; margin-top: 50px; margin-bottom: 30px; font-size: 2rem; color: #a9845c;">Rankings
+            Globales</h2>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+
+            <!-- ranking global mejor casa (suma tareas y compras) -->
+            <section class="ranking-card" style="flex: 1; min-width: 320px;">
+                <h3 style="background: #2b5c42; color: white; border-radius: 8px; padding: 10px; margin-top: -10px;">La
+                    mejor casa</h3>
+                <div class="ranking-list">
+                    {% for h in global_actions %}
+                    <div class="ranking-item {% if forloop.first %}first{% endif %}">
+                        <span class="position">{{ forloop.counter }}</span>
+                        <span class="name" style="margin-left: 0;">
+                            {{ h.name }}
+                        </span>
+                        <span class="score">{{ h.total_actions }}</span>
+                    </div>
+                    {% empty %}
+                    <p>No hay casas en el sistema.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- ranking global puntos totales -->
+            <section class="ranking-card" style="flex: 1; min-width: 320px;">
+                <h3 style="background: #1e3b5e; color: white; border-radius: 8px; padding: 10px; margin-top: -10px;">
+                    Casa con más puntos</h3>
+                <div class="ranking-list">
+                    {% for h in global_points %}
+                    <div class="ranking-item {% if forloop.first %}first{% endif %}">
+                        <span class="position">{{ forloop.counter }}</span>
+                        <span class="name" style="margin-left: 0;">
+                            {{ h.name }}
+                        </span>
+                        <span class="score">{{ h.total_p }} pts</span>
+                    </div>
+                    {% empty %}
+                    <p>No hay casas en el sistema.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+</body>
+
+</html>

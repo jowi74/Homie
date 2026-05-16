@@ -1,0 +1,403 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dormitorio de {{ target_user.username }} | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/dormitorio.css' %}">
+    <style>
+        :root {
+            --wall-color: {
+                    {
+                    profile.bedroom_wallcolor
+                }
+            }
+
+            ;
+        }
+    </style>
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <!-- header -->
+    <header class="header">
+        <a href="{% url 'inicio' %}" class="logo-link" onmouseover="this.style.transform='scale(1.12) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height:70px; object-fit:contain; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+        <a href="{% url 'lista_dormitorios' house.slug %}" class="btn-pixel"
+            onmouseover="this.querySelector('img').style.transform='scale(1.12) translateX(-4px)'"
+            onmouseout="this.querySelector('img').style.transform='scale(1)'">
+            <img src="{% static 'img/logoVolver.png' %}" alt="Volver"
+                style="height:70px; width:auto !important; max-width:none !important; transition:transform 0.2s; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.25));">
+        </a>
+    </header>
+
+    <!-- main -->
+    <main class="bedroom-page">
+
+        <!-- Dormitorio -->
+        <div class="room-wrapper">
+
+            <!-- Nombre del dormitorio -->
+            <div class="room-title-bar">
+                <div class="avatar-mini-wrap">
+                    {% if target_user.avatar %}
+                    <img src="{{ target_user.avatar.url }}" alt="avatar" class="avatar-mini">
+                    {% else %}
+                    <img src="{% static 'img/profile_default.png' %}" alt="avatar" class="avatar-mini">
+                    {% endif %}
+                    {% if target_user.equipped_frame %}
+                    <img src="{% static 'img/' %}{{ target_user.equipped_frame }}" alt="Marco"
+                        class="avatar-mini-frame">
+                    {% endif %}
+                </div>
+                <span class="room-owner-name">{{ target_user.username }}</span>
+                <span class="room-points-badge"><img src="{% static 'img/puntos.png' %}" alt="Puntos"
+                        style="height:0.85em; vertical-align:-0.1em; margin-right:2px;"> {{ profile.points }} pts</span>
+            </div>
+
+            <!-- Habitacion -->
+            <section class="room" id="theRoom" style="--wall-color: {{ profile.bedroom_wallcolor }};">
+
+                <!-- Pared -->
+                <div class="wall">
+
+                    <!-- Poster gaming -->
+                    {% if profile.bedroom_poster == 'poster_gaming' %}
+                    <div class="poster poster-gaming" title="¡Poster Gaming!" onclick="popReaction(this, '🎮')">
+                        <div class="poster-inner">
+                            <div class="poster-pixel-art">
+                                🕹️
+                            </div>
+                            <div class="poster-text">GAME OVER</div>
+                            <div class="poster-subtext">PRESS START</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Ventana con nubes animadas -->
+                    <div class="window-frame" onclick="popReaction(this, '☁️')" title="Ventana">
+                        <div class="window-sky">
+                            <div class="cloud cloud-1">☁️</div>
+                            <div class="cloud cloud-2">⛅</div>
+                            <div class="cloud cloud-3">☁️</div>
+                        </div>
+                        <div class="window-cross"></div>
+                    </div>
+
+                    <!-- Estanteria -->
+                    <div class="shelf" onclick="popReaction(this, '📚')" title="Estantería">
+                        <div class="shelf-board">
+                            <div class="book" style="background:#e57373;">📒</div>
+                            <div class="book" style="background:#64b5f6;">📘</div>
+                            <div class="book" style="background:#81c784;">📗</div>
+                            <div class="trophy">🏆</div>
+                        </div>
+                    </div>
+
+                </div><!-- /wall -->
+
+                <!-- suelo -->
+                <div class="floor">
+
+                    <!-- Alfombra -->
+                    <div class="rug {% if profile.bedroom_rug_style == 'rug_stars' %}rug-stars{% endif %}">
+                        {% if profile.bedroom_rug_style == 'rug_stars' %}
+                        <span class="star-particle">✨</span>
+                        <span class="star-particle">⭐</span>
+                        <span class="star-particle">✨</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Cama -->
+                    <div class="bed-obj" onclick="onClickBed(this)" title="¡Cama!">
+                        <div class="bed-frame">
+                            <div class="bed-pillow">😴</div>
+                            <div class="bed-mattress"></div>
+                        </div>
+                        <div class="bed-legs">
+                            <div class="leg"></div>
+                            <div class="leg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Escritorio con PC -->
+                    <div class="desk-obj" onclick="onClickDesk(this)" title="Escritorio">
+                        <div class="monitor">
+                            <div class="monitor-screen" id="monitorScreen">
+                                <span class="monitor-text">HOMIE</span>
+                            </div>
+                            <div class="monitor-stand"></div>
+                        </div>
+                        <div class="desk-surface">
+                            <div class="keyboard">⌨️</div>
+                        </div>
+                        <div class="desk-legs">
+                            <div class="leg"></div>
+                            <div class="leg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Planta -->
+                    <div class="plant-obj" onclick="popReaction(this, '🌿')" title="¡Plántame!">
+                        <div class="plant-pot">
+                            <div class="plant-leaves">🌱</div>
+                        </div>
+                    </div>
+
+                    <!-- Lampara de pie -->
+                    <div class="lamp-obj" onclick="toggleLamp()" title="Lámpara">
+                        <div class="lamp-head" id="lampHead">💡</div>
+                        <div class="lamp-pole"></div>
+                        <div class="lamp-base"></div>
+                    </div>
+
+                </div>
+
+                <!-- Overlay de luz cuando la lampara se apaga -->
+                <div class="dark-overlay" id="darkOverlay"></div>
+
+                <!-- Tooltip flotante de reacciones -->
+                <div class="reaction-popup" id="reactionPopup"></div>
+
+            </section>
+
+            <!-- Boton personalizar -->
+            {% if is_owner %}
+            <div class="customize-bar">
+                <button class="btn-customize" onclick="openCustomize()">Personalizar mi dormitorio</button>
+                <a href="{% url 'tienda' house.slug %}" class="btn-store">Ir a la Tienda</a>
+            </div>
+            {% else %}
+            <div class="customize-bar" style="justify-content:center;">
+                <a href="{% url 'lista_dormitorios' house.slug %}" class="btn-store">← Ver todos los dormitorios</a>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Columna derecha -->
+        <aside class="profile-panel">
+
+            <!-- Foto de perfil -->
+            <div class="big-avatar-wrap">
+                {% if target_user.avatar %}
+                <img src="{{ target_user.avatar.url }}" alt="Avatar" class="big-avatar">
+                {% else %}
+                <img src="{% static 'img/profile_default.png' %}" alt="Avatar" class="big-avatar">
+                {% endif %}
+                {% if target_user.equipped_frame %}
+                <img src="{% static 'img/' %}{{ target_user.equipped_frame }}" alt="Marco" class="big-avatar-frame">
+                {% endif %}
+            </div>
+
+            <h2 class="panel-name">{{ target_user.username }}</h2>
+            {% if is_owner %}
+            <span class="panel-tag">Tu dormitorio 🏠</span>
+            {% endif %}
+
+            <!-- Estadisticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-icon"><img src="{% static 'img/puntos.png' %}" alt="Puntos"
+                            style="height:0.85em; vertical-align:-0.1em;"></span>
+                    <span class="stat-value">{{ profile.points }}</span>
+                    <span class="stat-label">Puntos</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">✅</span>
+                    <span class="stat-value">{{ profile.completed_tasks_count }}</span>
+                    <span class="stat-label">Tareas</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">🛒</span>
+                    <span class="stat-value">{{ profile.completed_shopping_count }}</span>
+                    <span class="stat-label">Compras</span>
+                </div>
+            </div>
+
+            <!-- Logros -->
+            <div class="badges-section">
+                <h3 class="badges-title">Logros</h3>
+                <div class="badges-list" style="display:flex; flex-wrap:wrap; gap:10px;">
+                    {% for ua in request.user.achievements.all %}
+                    <div class="badge gold" title="{{ ua.achievement.description }}"
+                        style="padding: 6px 12px; border-radius: 12px; font-weight: bold; font-size: 0.85rem; border: 2px solid #ffd54f; box-shadow: 0 2px 4px rgba(255, 213, 79, 0.4); display:inline-flex; align-items:center; gap:5px; background:white; color:#4a3520;">
+                        <span>{{ ua.achievement.icon }}</span> {{ ua.achievement.name }}
+                    </div>
+                    {% empty %}
+                    <p class="no-badges">¡Completa tareas y compras para ganar logros!</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Items desbloqueados -->
+            <div class="unlocks-section">
+                <h3 class="badges-title">🔓 Ítems de dormitorio</h3>
+                <div class="unlocks-list">
+                    <div class="unlock-item {% if profile.unlock_wallcolor %}unlocked{% else %}locked{% endif %}">
+                        🎨 Pared de Color {% if not profile.unlock_wallcolor %}<span class="lock-icon">🔒</span>{% endif %}
+                    </div>
+                    <div class="unlock-item {% if profile.unlock_stars_rug %}unlocked{% else %}locked{% endif %}">
+                        ⭐ Alfombra Estelar {% if not profile.unlock_stars_rug %}<span class="lock-icon">🔒</span>{% endif %}
+                    </div>
+                    <div class="unlock-item {% if profile.unlock_poster_gaming %}unlocked{% else %}locked{% endif %}">
+                        🎮 Poster Gaming {% if not profile.unlock_poster_gaming %}<span class="lock-icon">🔒</span>{% endif %}
+                    </div>
+                </div>
+                {% if is_owner %}
+                <a href="{% url 'tienda' house.slug %}" class="btn-unlock-more">+ Desbloquear más en la Tienda</a>
+                {% endif %}
+            </div>
+
+        </aside>
+
+    </main>
+
+    <!-- modal para personalizar la habitacion -->
+    {% if is_owner %}
+    <div class="modal-overlay" id="customizeModal" style="display:none;"
+        onclick="if(event.target===this) closeCustomize()">
+        <div class="modal-box">
+            <h2 class="modal-title">🎨 Personalizar Dormitorio</h2>
+            <form method="POST" action="{% url 'guardar_estilo_dormitorio' house.slug target_user.username %}">
+                {% csrf_token %}
+
+                <!-- Color de la pared -->
+                <div class="modal-section">
+                    <label class="modal-label">Color de Pared
+                        {% if not profile.unlock_wallcolor %}
+                        <span class="locked-hint">🔒 Desbloquea en la tienda (80 <img src="{% static 'img/saldo.png' %}"
+                                alt="Saldo" style="height:1em; vertical-align:-0.1em;">)</span>
+                        {% endif %}
+                    </label>
+                    <div class="color-palette">
+                        {% for color_hex, color_name in wall_colors %}
+                        <label class="color-swatch {% if not profile.unlock_wallcolor %}disabled-swatch{% endif %}"
+                            title="{{ color_name }}">
+                            <input type="radio" name="wallcolor" value="{{ color_hex }}" {% if profile.bedroom_wallcolor == color_hex %}checked{% endif %} {% if not profile.unlock_wallcolor %}disabled{% endif %}>
+                            <span class="swatch-circle" style="background: {{ color_hex }};"></span>
+                            <span class="swatch-name">{{ color_name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Alfombra -->
+                <div class="modal-section">
+                    <label class="modal-label">Alfombra</label>
+                    <div class="color-palette">
+                        <label class="color-swatch">
+                            <input type="radio" name="rug_style" value="rug_default" {% if profile.bedroom_rug_style == 'rug_default' %}checked{% endif %}>
+                            <span class="swatch-circle" style="background:#8B6552;"></span>
+                            <span class="swatch-circle" style="background:#8B6552;"></span>
+                            <span class="swatch-name">Clásica</span>
+                        </label>
+                        <label class="color-swatch {% if not profile.unlock_stars_rug %}disabled-swatch{% endif %}"
+                            title="{% if not profile.unlock_stars_rug %}🔒 Desbloquea en tienda (120 de saldo){% endif %}">
+                            <input type="radio" name="rug_style" value="rug_stars" {% if profile.bedroom_rug_style == 'rug_stars' %}checked{% endif %} {% if not profile.unlock_stars_rug %}disabled{% endif %}>
+                            <span class="swatch-circle"
+                                style="background: linear-gradient(135deg,#1a1a2e,#533483);">⭐</span>
+                            <span class="swatch-name">Estrellas {% if not profile.unlock_stars_rug %}🔒{% endif %}</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Poster -->
+                <div class="modal-section">
+                    <label class="modal-label">Poster</label>
+                    <div class="color-palette">
+                        <label class="color-swatch">
+                            <input type="radio" name="poster" value="none" {% if profile.bedroom_poster == 'none' %}checked{% endif %}>
+                            <span class="swatch-circle" style="background:#ccc;">—</span>
+                            <span class="swatch-name">Sin poster</span>
+                        </label>
+                        <label class="color-swatch {% if not profile.unlock_poster_gaming %}disabled-swatch{% endif %}"
+                            title="{% if not profile.unlock_poster_gaming %}🔒 Desbloquea en tienda (150 de saldo){% endif %}">
+                            <input type="radio" name="poster" value="poster_gaming" {% if profile.bedroom_poster == 'poster_gaming' %}checked{% endif %} {% if not profile.unlock_poster_gaming %}disabled{% endif %}>
+                            <span class="swatch-circle"
+                                style="background:linear-gradient(135deg,#0f0c29,#302b63);">🎮</span>
+                            <span class="swatch-name">Gaming {% if not profile.unlock_poster_gaming %}🔒{% endif %}</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save">Guardar cambios</button>
+                    <button type="button" class="btn-cancel" onclick="closeCustomize()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        /* ---- Reacciones al clicar objetos ---- */
+        function popReaction(el, emoji) {
+            const popup = document.getElementById('reactionPopup');
+            const rect = el.getBoundingClientRect();
+            const roomRect = document.getElementById('theRoom').getBoundingClientRect();
+            popup.textContent = emoji;
+            popup.style.left = (rect.left - roomRect.left + rect.width / 2 - 20) + 'px';
+            popup.style.top = (rect.top - roomRect.top - 40) + 'px';
+            popup.classList.add('pop-active');
+            clearTimeout(popup._timer);
+            popup._timer = setTimeout(() => popup.classList.remove('pop-active'), 1000);
+        }
+
+        /* ---- Cama ---- */
+        function onClickBed(el) {
+            const hour = new Date().getHours();
+            const emoji = hour >= 22 || hour < 7 ? '💤' : '🎵';
+            popReaction(el, emoji);
+            el.classList.add('bed-bounce');
+            setTimeout(() => el.classList.remove('bed-bounce'), 500);
+        }
+
+        /* ---- Monitor / Escritorio ---- */
+        const desktopMessages = ['HOMIE 🏠', '{{ profile.points }} pts', '{{ profile.completed_tasks_count }} tareas ✅', '¡Hola! 👋'];
+        let msgIdx = 0;
+        function onClickDesk(el) {
+            msgIdx = (msgIdx + 1) % desktopMessages.length;
+            document.getElementById('monitorScreen').querySelector('.monitor-text').textContent = desktopMessages[msgIdx];
+            el.querySelector('.monitor-screen').classList.add('monitor-flash');
+            setTimeout(() => el.querySelector('.monitor-screen').classList.remove('monitor-flash'), 300);
+        }
+
+        /* ---- Lámpara ---- */
+        let lampOn = true;
+        function toggleLamp() {
+            lampOn = !lampOn;
+            document.getElementById('lampHead').textContent = lampOn ? '💡' : '🕯️';
+            const overlay = document.getElementById('darkOverlay');
+            overlay.style.opacity = lampOn ? '0' : '0.65';
+        }
+
+        /* ---- Modal personalización ---- */
+        function openCustomize() {
+            document.getElementById('customizeModal').style.display = 'flex';
+        }
+        function closeCustomize() {
+            document.getElementById('customizeModal').style.display = 'none';
+        }
+
+        /* ---- Preview en tiempo real del color de pared ---- */
+        document.querySelectorAll('input[name="wallcolor"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.getElementById('theRoom').style.setProperty('--wall-color', radio.value);
+            });
+        });
+    </script>
+
+</body>
+
+</html>

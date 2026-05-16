@@ -1,0 +1,161 @@
+/* RESET */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* BASE */
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: #f5f3ee;
+    /* papel cálido */
+    color: #3f3a2f;
+    /* tierra */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* HEADER */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #6b4f2d;
+    /* madera */
+    color: #fffaf2;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #fffaf2;
+    font-weight: 500;
+}
+
+
+/* HERO */
+
+.hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+}
+
+.hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #3f3a2f;
+}
+
+.hero p {
+    max-width: 500px;
+    margin-bottom: 30px;
+    color: #6b5e4a;
+    /* texto suave */
+}
+
+
+/* BOTONES */
+
+.hero-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.primary {
+    background-color: #6b8f71;
+    /* verde musgo */
+    color: #fffaf2;
+}
+
+.primary:hover {
+    background-color: #5b7d63;
+}
+
+.secondary {
+    border: 2px solid #6b8f71;
+    color: #6b8f71;
+    background-color: transparent;
+}
+
+.secondary:hover {
+    background-color: #e4efe9;
+}
+
+
+/* FOOTER */
+
+.footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #e8e3d9;
+    font-size: 0.9rem;
+    color: #6b5e4a;
+}
+
+/* =========================================
+   RESPONSIVE — INDEX (LANDING)
+   ========================================= */
+
+@media (max-width: 768px) {
+    .header {
+        padding: 14px 20px;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    .nav a {
+        margin-left: 10px;
+        font-size: 0.9rem;
+    }
+    .hero h2 {
+        font-size: 1.8rem;
+    }
+    .hero {
+        padding: 30px 20px;
+    }
+    .hero-buttons {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 280px;
+    }
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h2 {
+        font-size: 1.5rem;
+    }
+    .logo {
+        font-size: 1.4rem;
+    }
+}

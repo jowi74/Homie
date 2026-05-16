@@ -1,0 +1,175 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dormitorios | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/dormitorios.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <!-- header -->
+    <header class="header">
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.15) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+        <a href="{% url 'casa_detalle' house.slug %}" class="btn-pixel"><img src="{% static 'img/logoVolver.png' %}"
+                alt="Volver"
+                style="height:85px; width:auto !important; max-width:none !important; transition: transform 0.2s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));"
+                onmouseover="this.style.transform='scale(1.15) translateX(-5px)'"
+                onmouseout="this.style.transform='scale(1)'"></a>
+    </header>
+
+    <!-- main -->
+    <main class="dorms-page">
+
+        <!-- tu dormitorio -->
+        <section class="dorm-section">
+            <h2>Tu dormitorio</h2>
+
+            <div class="dorm-card own">
+                <div style="position:relative; display:inline-block; width:80px; height:80px; flex-shrink:0;">
+                    {% if my_profile.user.avatar %}
+                    <img src="{{ my_profile.user.avatar.url }}" alt="Mi avatar"
+                        style="border-radius:50%; object-fit:cover; width:100% !important; height:100% !important;">
+                    {% else %}
+                    <img src="{% static 'img/profile_default.png' %}" alt="Mi avatar"
+                        style="border-radius:50%; object-fit:cover; width:100% !important; height:100% !important;">
+                    {% endif %}
+                    {% if my_profile.user.equipped_frame %}
+                    <img src="{% static 'img/' %}{{ my_profile.user.equipped_frame }}" alt="Marco"
+                        style="position:absolute; inset:-12px; width:calc(100% + 24px) !important; height:calc(100% + 24px) !important; object-fit:fill; pointer-events:none; z-index:2; max-width:none;">
+                    {% endif %}
+                </div>
+
+                <div class="dorm-info">
+                    <h3>Tu habitación</h3>
+                    <p><img src="{% static 'img/puntos.png' %}" alt="Puntos"
+                            style="height:0.85em; vertical-align:middle; margin-right:3px;"> {{ my_profile.points }}
+                        puntos</p>
+                </div>
+
+                <a href="{% url 'ver_dormitorio' house.slug request.user.username %}" class="btn primary">
+                    Entrar
+                </a>
+            </div>
+        </section>
+
+        <!-- otros dormitorios -->
+        <section class="dorm-section">
+            <h2>Otros miembros</h2>
+
+            <div class="dorm-grid">
+
+                {% for profile in other_profiles %}
+                <div class="dorm-card" style="position:relative;">
+
+                    <button type="button" onclick="openDormSettings('{{ profile.user.username }}')"
+                        style="position:absolute; top:10px; right:10px; background:none; border:none; cursor:pointer; padding:0; transition: transform 0.2s;"
+                        onmouseover="this.style.transform='scale(1.15) rotate(15deg)'"
+                        onmouseout="this.style.transform='scale(1) rotate(0)'">
+                        <img src="{% static 'img/ajustes.png' %}" alt="Ajustes"
+                            style="width: 25px; height: 25px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+                    </button>
+
+                    <div
+                        style="position:relative; display:inline-block; margin-bottom:10px; width:64px; height:64px; flex-shrink:0;">
+                        {% if profile.user.avatar %}
+                        <img src="{{ profile.user.avatar.url }}" alt="Avatar"
+                            style="border-radius:50%; object-fit:cover; width:100% !important; height:100% !important;">
+                        {% else %}
+                        <img src="{% static 'img/profile_default.png' %}" alt="Avatar"
+                            style="border-radius:50%; object-fit:cover; width:100% !important; height:100% !important;">
+                        {% endif %}
+                        {% if profile.user.equipped_frame %}
+                        <img src="{% static 'img/' %}{{ profile.user.equipped_frame }}" alt="Marco"
+                            style="position:absolute; inset:-10px; width:calc(100% + 20px) !important; height:calc(100% + 20px) !important; object-fit:fill; pointer-events:none; z-index:2; max-width:none;">
+                        {% endif %}
+                    </div>
+
+                    <div class="dorm-info">
+                        {% if profile.nickname %}
+                        <h3 style="margin-bottom: 2px;">{{ profile.nickname }}</h3>
+                        <p style="font-size: 0.8rem; margin-top: 0;">{{ profile.user.username }}</p>
+                        {% else %}
+                        <h3>{{ profile.user.username }}</h3>
+                        {% endif %}
+                        <p><img src="{% static 'img/puntos.png' %}" alt="Puntos"
+                                style="height:0.85em; vertical-align:middle; margin-right:3px;"> {{ profile.points }}
+                            puntos</p>
+                    </div>
+
+                    <a href="{% url 'ver_dormitorio' house.slug profile.user.username %}" class="btn secondary">
+                        Ver
+                    </a>
+
+                </div>
+                {% empty %}
+                <p>No hay otros miembros en la casa.</p>
+                {% endfor %}
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal ajustes del dormitorio -->
+    {% for profile in other_profiles %}
+    <div class="modal" id="dormSettingsModal_{{ profile.user.username }}"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index: 10000;">
+        <div class="modal-content"
+            style="background:#fdfaf6; padding:20px; border-radius:15px; width:90%; max-width:400px; text-align:center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+            <h2>Ajustes de {{ profile.user.username }}</h2>
+
+            <form method="post" action="{% url 'poner_mote' house.slug profile.user.username %}"
+                style="margin-bottom: 15px; text-align:left;">
+                {% csrf_token %}
+                <div style="margin-bottom: 10px;">
+                    <label style="font-weight:bold; color:#3f3a2f;">Poner mote privado:</label>
+                    <p style="font-size:0.8rem; color:#6b4f2d; margin-top:2px; margin-bottom:8px;">Solo tú verás este
+                        mote.</p>
+                    <input type="text" name="nickname" value="{{ profile.nickname|default:'' }}" placeholder="Apodo"
+                        style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                </div>
+                <button type="submit" class="btn primary" style="width:100%;">Guardar mote</button>
+            </form>
+
+            {% if not profile.is_active_member %}
+            <form method="post" action="{% url 'eliminar_dormitorio' house.slug profile.user.username %}">
+                {% csrf_token %}
+                <button type="button" class="btn danger" style="width:100%;"
+                    onclick="if(confirm('¿Seguro que quieres borrar permanentemente este dormitorio?')) this.form.submit();">Eliminar
+                    dormitorio</button>
+            </form>
+            {% else %}
+            <p
+                style="font-size:0.85rem; color:#888; margin-bottom:5px; background-color:#e7efdf; border-radius:5px; padding:5px;">
+                Para eliminar este dormitorio, el usuario no debe estar en la casa.</p>
+            {% endif %}
+
+            <button type="button" class="btn secondary" style="width:100%; margin-top: 10px;"
+                onclick="closeDormSettings('{{ profile.user.username }}')">Cerrar</button>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        function openDormSettings(userId) {
+            document.getElementById('dormSettingsModal_' + userId).style.display = 'flex';
+        }
+        function closeDormSettings(userId) {
+            document.getElementById('dormSettingsModal_' + userId).style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,266 @@
+/* =========================================
+   COMPRA CSS - OPTIMIZADO
+   ========================================= */
+
+:root {
+    --brown-dark:  #4a3520;
+    --brown-mid:   #6b4f2d;
+    --brown-light: #a9845c;
+    --cream:       #fdfaf6;
+    --cream-card:  #f5efe6;
+    --accent:      #c9a97a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: var(--cream-card);
+    color: var(--brown-dark);
+}
+
+/* ── Header general ─────────────────────── */
+.header {
+    height: 70px;
+    background-color: var(--brown-mid);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+}
+
+.btn-pixel {
+    background: none; border: none; cursor: pointer;
+}
+
+.btn-pixel img {
+    width: 40px;
+    image-rendering: pixelated;
+}
+
+/* ── Page layout ─────────────────────── */
+.shopping-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px 120px;
+}
+
+/* ── Page header ─────────────────────── */
+.page-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+.page-header-row h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--brown-dark);
+}
+
+/* ── Botón Añadir producto ────────────── */
+.btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--brown-mid);
+    color: var(--cream);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(107,79,45,0.3);
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.btn-add:hover {
+    background: var(--brown-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(107,79,45,0.4);
+}
+
+/* ── Lista de items ───────────────────── */
+.shopping-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+/* ── Item de la compra ────────────────── */
+.shopping-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--cream);
+    border: 1.5px solid var(--accent);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s, transform 0.15s;
+}
+.shopping-item:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); transform: translateY(-1px); }
+
+/* Check icon decorativo */
+.item-bullet {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--brown-light);
+    flex-shrink: 0;
+}
+
+.item-name {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--brown-dark);
+}
+
+/* ── Botón eliminar ───────────────────── */
+.btn-delete-item {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1.5px solid #f5c6cb;
+    background: #fff0f0;
+    color: #c0392b;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-delete-item:hover { background: #c0392b; color: #fff; transform: scale(1.1); }
+
+/* ── Empty state ─────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #bbb;
+}
+.empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.empty-state p { font-size: 1rem; }
+
+/* ── Banner de recompensa ─────────────── */
+.reward-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+    border: 1.5px solid #ffe082;
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    color: #795548;
+    font-weight: 600;
+}
+.reward-banner .reward-icon { font-size: 1.5rem; }
+
+/* ── Botón "Compra completada" ─────────── */
+.btn-complete {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--brown-mid), var(--brown-dark));
+    color: var(--cream);
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(107,79,45,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.5px;
+}
+.btn-complete:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(107,79,45,0.45);
+}
+.btn-complete:active { transform: translateY(0); }
+
+/* ── Modal ────────────────────────────── */
+.modal {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 999;
+    align-items: center; justify-content: center;
+}
+.modal-content {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 28px 32px;
+    width: 90%; max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.modal-content h2 { margin: 0 0 20px; color: var(--brown-dark); font-size: 1.2rem; }
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.form-group label { font-size: 0.85rem; font-weight: 700; color: var(--brown-mid); }
+.form-group input {
+    border: 1.5px solid var(--accent);
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: #fffdf9;
+    color: var(--brown-dark);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.form-group input:focus { border-color: var(--brown-mid); }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.btn-confirm { background: var(--brown-mid); color: var(--cream); border: none; border-radius: 8px; padding: 9px 22px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; }
+.btn-confirm:hover { background: var(--brown-dark); }
+.btn-cancel-modal { background: #f0e6d3; color: var(--brown-dark); border: 1px solid var(--accent); border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; }
+.btn-cancel-modal:hover { background: #e0cdb0; }
+
+/* ── Counter badge ───────────────────── */
+.item-count {
+    font-size: 0.82rem;
+    color: #999;
+    margin-bottom: 14px;
+}
+
+/* =========================================
+   RESPONSIVE — COMPRA
+   ========================================= */
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 16px;
+        height: 60px;
+    }
+    .shopping-page {
+        padding: 16px 12px 80px;
+    }
+    /* Items de la lista */
+    .shopping-item {
+        padding: 12px 14px;
+    }
+
+    /* Modal */
+    .modal-content {
+        width: 94%;
+        padding: 20px 16px;
+    }
+    .modal-actions {
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+    .modal-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .shopping-item label {
+        font-size: 0.9rem;
+    }
+}

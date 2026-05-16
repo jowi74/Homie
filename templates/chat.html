@@ -1,0 +1,280 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chat | Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <!-- header -->
+    <header class="chat-header">
+        <a href="{% url 'lista_chats' house.slug %}" class="btn-pixel">
+            <img src="{% static 'img/logoVolver.png' %}" alt="Volver"
+                style="height:70px; width:auto !important; max-width:none !important; transition: transform 0.2s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));"
+                onmouseover="this.style.transform='scale(1.15) translateX(-5px)'"
+                onmouseout="this.style.transform='scale(1)'">
+        </a>
+        <div class="chat-user">
+            {% if room.is_group %}
+            {% if room.image %}
+            <img src="{{ room.image.url }}" alt="grupo"
+                style="width:44px;height:44px;border-radius:50%;object-fit:cover;">
+            {% else %}
+            <img src="{% static 'img/interrogante.png' %}" alt="grupo"
+                style="width:44px;height:44px;border-radius:50%;object-fit:cover;">
+            {% endif %}
+            {% else %}
+            {% for m in other_members %}
+            <div style="position:relative; display:inline-block; width:44px; height:44px; flex-shrink:0;">
+                {% if m.avatar %}<img src="{{ m.avatar.url }}" alt="{{ m.username }}"
+                    style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+                {% else %}<img src="{% static 'img/profile_default.png' %}" alt="{{ m.username }}"
+                    style="width:100%;height:100%;border-radius:50%;object-fit:cover;">{% endif %}
+                {% if m.equipped_frame %}
+                <img src="{% static 'img/' %}{{ m.equipped_frame }}" alt="Marco"
+                    style="position:absolute; inset:-5px; width:calc(100% + 10px); height:calc(100% + 10px); object-fit:fill; pointer-events:none; z-index:2;">
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% endif %}
+            <span>{{ room_name }}</span>
+        </div>
+        {% if not is_private %}
+        <a href="{% url 'chat_ajustes_grupo' house.slug room.slug %}"
+            style="margin-left:auto; color:#fdfaf6; font-size:1.4rem; text-decoration:none; padding:6px 10px; border-radius:8px; background:rgba(255,255,255,0.15); transition:background 0.2s;"
+            title="Ajustes" onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+            onmouseout="this.style.background='rgba(255,255,255,0.15)'">⚙️</a>
+        {% else %}
+        <button onclick="document.getElementById('privateChatSettingsModal').style.display='flex';"
+            style="margin-left:auto; background:rgba(255,255,255,0.15); border:none; font-size:1.4rem; color:#fdfaf6; cursor:pointer; padding:6px 10px; border-radius:8px; transition:background 0.2s;"
+            title="Ajustes Privados" onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+            onmouseout="this.style.background='rgba(255,255,255,0.15)'">⚙️</button>
+        {% endif %}
+    </header>
+
+    {% csrf_token %}
+
+    <!-- Globo de mensajes -->
+    <main class="chat-messages" id="chat-messages-container">
+        {% for msg in room.messages.all %}
+        {% if msg.sender == request.user %}
+        <div class="message mine" id="msg-{{ msg.id }}">
+            <div class="bubble">
+                <div class="bubble-text">{{ msg.content }}</div>
+                <span class="bubble-time">{{ msg.created_at|time:"H:i" }}</span>
+            </div>
+        </div>
+        {% else %}
+        <div class="message other" id="msg-{{ msg.id }}">
+            <div style="position:relative; display:inline-block; width:36px; height:36px; flex-shrink:0;">
+                {% if msg.sender.avatar %}
+                <img class="avatar-sm" src="{{ msg.sender.avatar.url }}" alt="{{ msg.sender.username }}"
+                    style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                {% else %}
+                <img class="avatar-sm" src="{% static 'img/profile_default.png' %}" alt="{{ msg.sender.username }}"
+                    style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                {% endif %}
+                {% if msg.sender.equipped_frame %}
+                <img src="{% static 'img/' %}{{ msg.sender.equipped_frame }}" alt="Marco"
+                    style="position:absolute; inset:-5px; width:calc(100% + 10px); height:calc(100% + 10px); object-fit:fill; pointer-events:none; z-index:2;">
+                {% endif %}
+            </div>
+            <div class="bubble">
+                <div class="bubble-header"><span class="bubble-sender">{{ msg.sender.username }}</span></div>
+                <div class="bubble-text">{{ msg.content }}</div>
+                <span class="bubble-time">{{ msg.created_at|time:"H:i" }}</span>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </main>
+
+    <!-- Input de mensajes / banner de muteo -->
+    {% if is_muted %}
+    <footer class="chat-input" style="justify-content:center; background:#f0e6d3; border-top:2px solid #c9a97a;">
+        <div style="display:flex; align-items:center; gap:10px; color:#4a3520; font-size:0.95rem;">
+            <span style="font-size:1.3rem;">🔇</span>
+            <span>Estás muteado. No puedes enviar mensajes en este grupo.</span>
+        </div>
+    </footer>
+    {% else %}
+    <footer class="chat-input">
+        <input type="text" id="msg-input" placeholder="Escribe un mensaje..." autocomplete="off">
+        <button class="chat-send-btn" id="btn-send" onclick="sendMessage()">Enviar ➤</button>
+    </footer>
+    {% endif %}
+
+    <script>
+        {% if is_private %}
+        const API_URL = "{% url 'api_mensajes_chat_privado' house.slug username_parameter %}";
+        {% else %}
+        const API_URL = "{% url 'api_mensajes_chat_grupo' house.slug room_slug %}";
+        {% endif %}
+        const CHATS_URL = "{% url 'lista_chats' house.slug %}";
+        const MY_ID = "{{ request.user.username }}";
+        const CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        let lastId = {{ room.messages.last.id|default:0 }};
+
+        const container = document.getElementById('chat-messages-container');
+
+        function scrollBottom() { container.scrollTop = container.scrollHeight; }
+        scrollBottom();
+
+        function escHtml(str) {
+            const d = document.createElement('div');
+            d.appendChild(document.createTextNode(str));
+            return d.innerHTML;
+        }
+
+        function appendMessage(msg) {
+            const isMine = msg.sender_id === MY_ID;
+            const div = document.createElement('div');
+            div.id = 'msg-' + msg.id;
+            div.className = 'message ' + (isMine ? 'mine' : 'other');
+
+            if (isMine) {
+                div.innerHTML = `
+                    <div class="bubble">
+                        <div class="bubble-text">${escHtml(msg.content)}</div>
+                        <span class="bubble-time">${msg.time}</span>
+                    </div>`;
+            } else {
+                let frameHtml = '';
+                if (msg.frame) {
+                    frameHtml = `<img src="/static/img/${msg.frame}" alt="Marco" style="position:absolute; inset:-5px; width:calc(100% + 10px); height:calc(100% + 10px); object-fit:fill; pointer-events:none; z-index:2;">`;
+                }
+
+                div.innerHTML = `
+                    <div style="position:relative; display:inline-block; width:36px; height:36px; flex-shrink:0;">
+                        <img class="avatar-sm" src="${msg.avatar_url}" alt="${escHtml(msg.sender_name)}" onerror="this.src='/static/img/profile_default.png'" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                        ${frameHtml}
+                    </div>
+                    <div class="bubble">
+                        <div class="bubble-header"><span class="bubble-sender">${escHtml(msg.sender_name)}</span></div>
+                        <div class="bubble-text">${escHtml(msg.content)}</div>
+                        <span class="bubble-time">${msg.time}</span>
+                    </div>`;
+                playPop();
+            }
+            container.appendChild(div);
+            scrollBottom();
+        }
+
+        function playPop() {
+            try {
+                const ctx = new AudioContext();
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination);
+                o.frequency.value = 880;
+                g.gain.setValueAtTime(0.12, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+                o.start(); o.stop(ctx.currentTime + 0.18);
+            } catch (e) { }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+                    body: JSON.stringify({ content: text })
+                });
+                pollMessages();
+            } catch (e) { }
+        }
+
+        document.getElementById('msg-input').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        });
+
+        async function pollMessages() {
+            try {
+                const resp = await fetch(`${API_URL}?last_id=${lastId}`);
+                const data = await resp.json();
+                // si se elimina el chat o se expulsa al usuario se redirige
+                if (data.deleted) {
+                    clearInterval(pollInterval);
+                    showDeletedBanner();
+                    setTimeout(() => { window.location.href = CHATS_URL; }, 2500);
+                    return;
+                }
+                if (data.messages && data.messages.length > 0) {
+                    data.messages.forEach(m => {
+                        if (!document.getElementById('msg-' + m.id)) appendMessage(m);
+                        if (m.id > lastId) lastId = m.id;
+                    });
+                }
+            } catch (e) { }
+        }
+
+        function showDeletedBanner() {
+            const banner = document.createElement('div');
+            banner.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;';
+            banner.innerHTML = `<div style="background:#fff;border-radius:16px;padding:32px 40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-width:320px;">
+                <div style="font-size:2.5rem;margin-bottom:12px;">🗑️</div>
+                <h3 style="margin:0 0 8px;color:#4a3520;">Chat eliminado</h3>
+                <p style="color:#888;font-size:0.9rem;margin:0;">Este chat ya no existe. Volviendo a tus chats…</p>
+            </div>`;
+            document.body.appendChild(banner);
+        }
+
+        const pollInterval = setInterval(pollMessages, 3000);
+    </script>
+
+    {% if is_private %}
+    <!-- Modal Ajustes Privados -->
+    <div id="privateChatSettingsModal"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center;">
+        <div
+            style="background:#fff; border-radius:16px; width:90%; max-width:320px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.25);">
+            <!-- Header del modal -->
+            <div
+                style="background:linear-gradient(135deg,#6b8f71,#4b6f44); padding:20px; text-align:center; position:relative;">
+                <div style="font-size:2rem; margin-bottom:6px;">💬</div>
+                <h3 style="margin:0; color:#fff; font-size:1.1rem; font-weight:700;">{{ username_parameter }}</h3>
+                <p style="margin:4px 0 0; color:rgba(255,255,255,0.75); font-size:0.82rem;">Chat privado</p>
+                <button onclick="document.getElementById('privateChatSettingsModal').style.display='none';"
+                    style="position:absolute; top:10px; right:12px; background:rgba(255,255,255,0.2); border:none; color:#fff; font-size:1rem; width:28px; height:28px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1;">✕</button>
+            </div>
+
+            <!-- Opciones -->
+            <div style="padding:20px; display:flex; flex-direction:column; gap:12px;">
+                <a href="{% url 'ver_dormitorio' house.slug username_parameter %}"
+                    style="display:flex; align-items:center; gap:12px; padding:14px 16px; background:#f0f7f1; border:1.5px solid #c3ddc6; border-radius:10px; text-decoration:none; color:#2c4c26; font-weight:600; font-size:0.95rem; transition:background 0.2s;"
+                    onmouseover="this.style.background='#daeedd'" onmouseout="this.style.background='#f0f7f1'">
+                    <span style="font-size:1.4rem;">🏠</span>
+                    <span>Ver dormitorio de {{ username_parameter }}</span>
+                </a>
+
+                <form method="POST" action="{% url 'borrar_chat_privado' house.slug username_parameter %}"
+                    onsubmit="return confirm('¿Borrar todo el historial de este chat? No se puede deshacer.')"
+                    style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit"
+                        style="display:flex; align-items:center; gap:12px; width:100%; padding:14px 16px; background:#fff5f5; border:1.5px solid #f5b8b8; border-radius:10px; color:#c0392b; font-weight:600; font-size:0.95rem; cursor:pointer; text-align:left; transition:background 0.2s; box-sizing:border-box;"
+                        onmouseover="this.style.background='#fde8e8'" onmouseout="this.style.background='#fff5f5'">
+                        <span style="font-size:1.4rem;">🗑️</span>
+                        <span>Borrar chat permanentemente</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</body>
+
+</html>

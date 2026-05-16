@@ -1,0 +1,170 @@
+/* CSS EXCLUSIVAMENTE PARA LA PANTALLA DE VERIFICACIÓN OTP */
+
+body {
+    background-color: #fdfaf6;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    color: #4a3520;
+}
+
+.auth-container {
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(107, 79, 45, 0.1);
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    border: 1px solid #f0e6d3;
+}
+
+.logo {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #6b4f2d;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 0px #e0cdb0;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #888;
+    margin-bottom: 2rem;
+    line-height: 1.4;
+}
+
+.error-message {
+    background: #ffebe6;
+    color: #c0392b;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid #fadbd8;
+    animation: shake 0.4s ease-in-out;
+}
+
+.success-message {
+    background: #e8f5e9;
+    color: #27ae60;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid #c8e6c9;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+}
+
+.code-input-group {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.code-input {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.8rem;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 8px;
+    border: 2px solid #e0cdb0;
+    border-radius: 12px;
+    background: #faf6f0;
+    color: #4a3520;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.code-input:focus {
+    border-color: #6b4f2d;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(107, 79, 45, 0.15);
+}
+
+.code-input::placeholder {
+    color: #ccc;
+    letter-spacing: 2px;
+    font-size: 1rem;
+    font-weight: 400;
+    transform: translateY(-8px);
+}
+
+.btn-submit {
+    background: #6b4f2d;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(107, 79, 45, 0.2);
+}
+
+.btn-submit:hover {
+    background: #4a3520;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(107, 79, 45, 0.3);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+.btn-resend {
+    background: transparent;
+    color: #6b4f2d;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 8px;
+    transition: color 0.2s;
+}
+
+.btn-resend:hover {
+    color: #4a3520;
+}
+
+.email-display {
+    font-weight: 600;
+    color: #6b4f2d;
+}
+
+/* =========================================
+   RESPONSIVE — VERIFICAR EMAIL
+   ========================================= */
+
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 0 12px;
+        align-items: flex-start;
+        padding-top: 40px;
+    }
+    .auth-container > div {
+        padding: 24px 18px;
+    }
+    .code-input {
+        font-size: 1.4rem;
+        letter-spacing: 5px;
+        padding: 12px;
+    }
+}
+

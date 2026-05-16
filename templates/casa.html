@@ -1,0 +1,518 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Homie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/casa.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+</head>
+
+<body>
+
+    <header class="header">
+        <!-- Logo + boton -->
+        <a href="{% url 'inicio' %}" class="logo-link" style="display:inline-block; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.15) translateY(-2px)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <img src="{% static 'img/logo.png' %}" alt="Homie Logo"
+                style="height: 75px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        </a>
+
+        <div style="flex-grow: 1; text-align: center; font-size: 1.5rem; font-weight: bold; letter-spacing: 1px;">{{ house.name }}</div>
+        <div class="house-info">
+
+            <a href="{% url 'profile' %}"
+                style="display:flex; align-items:center; gap: 10px; text-decoration: none; color: #fdfaf6;"
+                class="profile-link"
+                style="display:flex; align-items:center; gap: 10px; color: #fdfaf6; text-decoration: none; display:inline-block; transition: transform 0.2s;"
+                onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                <span style="font-weight: bold; font-size: 1.1rem; text-transform: capitalize;">{{ request.user.username }}</span>
+                <div style="position:relative; display:inline-block; width:45px; height:45px;">
+                    {% if request.user.avatar %}
+                    <img src="{{ request.user.avatar.url }}" alt="Perfil"
+                        style="width:45px; height:45px; border-radius:50%; object-fit:cover; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+                    {% else %}
+                    <img src="{% static 'img/profile_default.png' %}" alt="Perfil"
+                        style="width:45px; height:45px; border-radius:50%; object-fit:cover; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+                    {% endif %}
+                    {% if request.user.equipped_frame %}
+                    <img src="{% static 'img/' %}{{ request.user.equipped_frame }}" alt="Marco"
+                        style="position:absolute; inset:-6px; width:calc(100% + 12px); height:calc(100% + 12px); object-fit:fill; pointer-events:none; z-index:2; border:none !important; filter:none !important;">
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- Casa -->
+    <div class="house-layout">
+
+        <!-- lateral izquierdo -->
+        <aside class="left-panel">
+
+            <div class="clock" style="display: none;"></div>
+
+            <nav class="house-nav">
+                <a href="{% url 'casa_detalle' house.slug %}" class="nav-btn"
+                    style="text-decoration: none; display: block; text-align: center;">🏠 Inicio</a>
+                <a href="{% url 'lista_dormitorios' house.slug %}" class="nav-btn"
+                    style="text-decoration: none; display: block; text-align: center;">🛏 Dormitorios</a>
+                <a href="{% url 'lista_tareas' house.slug %}" class="nav-btn"
+                    style="text-decoration: none; display: block; text-align: center;">🧹 Tareas</a>
+                <a href="{% url 'lista_compra' house.slug %}" class="nav-btn"
+                    style="text-decoration: none; display: block; text-align: center;">🛒 Lista compra</a>
+                <a href="{% url 'finanzas' house.slug %}" class="nav-btn"
+                    style="text-decoration: none; display: block; text-align: center;">💸 Finanzas</a>
+                <a href="{% url 'tienda' house.slug %}" class="nav-btn"
+                    style="text-decoration: none; display: block; text-align: center;">🛍 Tienda</a>
+                <a href="{% url 'ranking' house.slug %}" class="nav-btn"
+                    style="text-decoration: none; display: block; text-align: center;">🏆 Ranking</a>
+                <a href="{% url 'logros' house.slug %}" class="nav-btn"
+                    style="text-decoration: none; display: block; text-align: center;">🎌 Logros</a>
+                <a href="{% url 'lista_chats' house.slug %}" class="nav-btn"
+                    style="text-decoration: none; display: block; text-align: center;">💬 Chat</a>
+            </nav>
+
+        </aside>
+
+        <!-- columna del centro -->
+        <main class="main-content">
+
+            <!-- nav de paginas -->
+            <div class="dash-tabs"
+                style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e7efdf; padding-bottom: 10px;">
+                <button class="tab-btn active" onclick="openTab('tab-corcho')"
+                    style="background: none; border: none; font-size: 1.1rem; font-weight: bold; color: #6b4f2d; cursor: pointer; padding: 5px 15px; border-radius: 8px; transition: background 0.2s;">📌
+                    Corcho</button>
+                <button class="tab-btn" onclick="openTab('tab-diario')"
+                    style="background: none; border: none; font-size: 1.1rem; font-weight: bold; color: #a9845c; cursor: pointer; padding: 5px 15px; border-radius: 8px; transition: background 0.2s;">📖
+                    Mi Diario</button>
+                <button class="tab-btn" onclick="openTab('tab-recordatorios')"
+                    style="background: none; border: none; font-size: 1.1rem; font-weight: bold; color: #a9845c; cursor: pointer; padding: 5px 15px; border-radius: 8px; transition: background 0.2s;">⏰
+                    Recordatorios</button>
+            </div>
+
+            <!-- pagina del corcho -->
+            <section id="tab-corcho" class="tab-content" style="display: block;">
+                <!-- form para crear notas -->
+                <form method="post" action="{% url 'crear_nota' house.slug %}"
+                    style="margin-bottom: 20px; display:flex; gap: 10px; align-items: start;">
+                    {% csrf_token %}
+                    <textarea name="content" placeholder="Escribe algo para el tablón común (todos lo verán)..."
+                        style="flex-grow:1; resize:none; padding:10px; border-radius:8px; border:1px solid #ccc; font-family: inherit;"
+                        rows="2" required></textarea>
+                    <input type="color" name="color" value="#ffffcc"
+                        style="height: 40px; border:none; cursor:pointer; background:transparent;"
+                        title="Color del post-it">
+                    <button type="submit" class="btn primary" style="height: 40px;">Fijar nota</button>
+                </form>
+
+                <!-- notas del corcho -->
+                <div class="corkboard"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                    {% for note in notes %}
+                    <div class="post-it"
+                        style="background-color: {{ note.color }}; padding: 15px; border-radius: 5px; box-shadow: 2px 4px 8px rgba(0,0,0,0.2); position: relative; transform: rotate({{ forloop.counter|add:house.slug|stringformat:'s'|make_list|last|add:'-4' }}deg);">
+                        <div
+                            style="font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: rgba(0,0,0,0.5); border-bottom: 1px dashed rgba(0,0,0,0.2); padding-bottom: 3px;">
+                            {{ note.author.username }} - {{ note.created_at|date:"d M H:i" }}
+                        </div>
+                        <p style="white-space: pre-wrap; font-size: 0.95rem; color: #222; margin-bottom: 25px;">{{ note.content }}</p>
+
+                        {% if note.author == request.user or house.creator == request.user %}
+                        <form method="post" action="{% url 'eliminar_nota' house.slug note.id %}"
+                            style="position: absolute; bottom: 5px; right: 8px;">
+                            {% csrf_token %}
+                            <button type="submit" title="Quitar nota"
+                                style="background:none; border:none; color:rgba(255,0,0,0.7); cursor:pointer; font-size: 1rem;">❌</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p style="color: #888; font-style: italic; margin-top: 10px;">Aún no hay post-its en el corcho.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- pagina del diario -->
+            <section id="tab-diario" class="tab-content" style="display: none;">
+                <form method="post" action="{% url 'crear_entrada_diario' house.slug %}"
+                    style="margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    {% csrf_token %}
+                    <input type="text" name="title" placeholder="Título secreto..."
+                        style="width:100%; margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-weight: bold;"
+                        required>
+                    <textarea name="content"
+                        placeholder="Escribe en tu diario personal... solo tú pudes acceder a estas memorias de tu vida en la casa."
+                        style="width:100%; resize:vertical; padding:10px; border-radius:5px; border:1px solid #ddd; font-family: inherit; margin-bottom: 10px;"
+                        rows="4" required></textarea>
+                    <button type="submit" class="btn primary">Guardar en mi Diario</button>
+                </form>
+
+                <div class="diary-entries">
+                    {% for entry in diary_entries %}
+                    <div
+                        style="background: #fdfaf6; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #a9845c; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h3 style="margin-bottom: 5px; color: #6b4f2d;">{{ entry.title }}</h3>
+                        <div style="font-size: 0.8rem; color: #a9845c; margin-bottom: 10px;">📅 {{ entry.created_at|date:"d de F, Y - H:i" }}</div>
+                        <p style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.5; color: #3f3a2f;">{{ entry.content }}</p>
+                    </div>
+                    {% empty %}
+                    <p style="color: #888; font-style: italic;">Tu diario está vacío por ahora.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- pagina de recordatorios -->
+            <section id="tab-recordatorios" class="tab-content" style="display: none;">
+                <form method="post" action="{% url 'crear_recordatorio' house.slug %}"
+                    style="margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    {% csrf_token %}
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <input type="text" name="message" placeholder="¿Qué quieres recordar/notificar?"
+                            style="flex-grow:1; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" required>
+                        <input type="datetime-local" name="trigger_time"
+                            style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;" required>
+                        <select name="target_user" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                            <option value="all">Notificar a toda la casa</option>
+                            {% for member in house.members.all %}
+                            <option value="{{ member.username }}">- Notificar a {{ member.username }} -</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn primary">Programar Alarma ⏰</button>
+                </form>
+                <div
+                    style="background: #fdfaf6; padding: 20px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px; color: #6b4f2d; font-size: 1.1rem;">🕒 Alarmas Programadas en espera
+                    </h3>
+                    {% for rem in pending_reminders %}
+                    <div id="pending-{{ rem.id }}"
+                        style="background: white; border-left: 4px solid #6b4f2d; margin-bottom: 10px; padding: 10px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative;">
+                        <strong>{{ rem.trigger_time|date:"d M - H:i" }}</strong>
+                        <span style="color: #333; margin-left: 5px;">{{ rem.message }}</span>
+                        <div style="font-size: 0.8rem; color: #888; margin-top: 3px;">
+                            De: {{ rem.creator.username }}
+                            {% if rem.target_user %} | Solo para: {{ rem.target_user.username }}{% endif %}
+                        </div>
+
+                        {% if rem.creator == request.user or house.creator == request.user %}
+                        <form method="post" action="{% url 'eliminar_recordatorio' house.slug rem.id %}"
+                            style="position: absolute; right: 10px; top: 10px;">
+                            {% csrf_token %}
+                            <button type="submit"
+                                style="background: none; border: none; color: #ff4444; font-size: 1rem; cursor: pointer;"
+                                title="Eliminar Alarma">❌</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p style="font-size: 0.9rem; font-style: italic; color: #888;">No hay alarmas pendientes.</p>
+                    {% endfor %}
+                </div>
+
+                <div style="background: #e7efdf; padding: 20px; border-radius: 10px; color: #4b6f44;">
+                    <h3 style="margin-bottom: 10px;">🔔 Notificaciones Sonando Recientemente</h3>
+                    <p style="font-size: 0.95rem; margin-bottom: 5px;">El radar está activado automáticamente en tu
+                        navegador.</p>
+                    <p style="font-size: 0.85rem; opacity: 0.8;">Cuando llegue la hora justa de alguna alarma esperando
+                        en la cola (arriba), desaparecerá de allí, escucharás una campana acústica ("ding") y te
+                        aparecerá en este registro en tiempo real.</p>
+                    <div id="live-alerts-container" style="margin-top: 15px;"></div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- lateral derecho -->
+        <aside class="right-panel">
+
+            <div class="digital-clock" id="digital-clock">
+                --:--
+            </div>
+
+            <div class="calendar-widget">
+                <div class="calendar-header">
+                    <button id="prev-month">&lt;</button>
+                    <h3 id="month-year">Mes Año</h3>
+                    <button id="next-month">&gt;</button>
+                </div>
+                <div class="calendar-days-names">
+                    <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                </div>
+                <div class="calendar-grid" id="calendar-grid">
+                </div>
+            </div>
+        </aside>
+
+        <script>
+            // RELOJ DIGITAL
+            function updateClock() {
+                const now = new Date();
+                let h = now.getHours().toString().padStart(2, '0');
+                let m = now.getMinutes().toString().padStart(2, '0');
+                document.getElementById('digital-clock').innerText = `${h}:${m}`;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            // MINI CALENDARIO INTERACTIVO
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            let currentDate = new Date();
+            let currentEvents = {}; // Para guardar los eventos cacheados del mes
+            
+            function openDayModal(day, month, year) {
+                const modal = document.getElementById("calendarEventsModal");
+                const title = document.getElementById("calendarModalTitle");
+                const list = document.getElementById("calendarModalList");
+                const dateInput = document.getElementById("calendarModalDateInput");
+                
+                // Formatear mes y dia para backend YYYY-MM-DD
+                const mStr = (month + 1).toString().padStart(2, '0');
+                const dStr = day.toString().padStart(2, '0');
+                dateInput.value = `${year}-${mStr}-${dStr}`;
+                
+                title.innerText = `Eventos del ${day} de ${monthNames[month]} ${year}`;
+                list.innerHTML = "";
+                
+                const dayEvents = currentEvents[day] || [];
+                if (dayEvents.length > 0) {
+                    dayEvents.forEach(ev => {
+                        const deleteUrl = `{% url 'eliminar_evento_calendario' house.slug 0 %}`.replace('/0/', `/${ev.id}/`);
+                        const CSRF = document.querySelector('[name=csrfmiddlewaretoken]') 
+                            ? document.querySelector('[name=csrfmiddlewaretoken]').value 
+                            : '{{ csrf_token }}';
+                        list.innerHTML += `<div id="ev-${ev.id}" style="padding:10px; background:#fdfaf6; border-left:4px solid #a9845c; margin-bottom:10px; border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <strong style="color:#6b4f2d;">${ev.title}</strong>
+                                <div style="font-size:0.8rem; color:#888;">Agendado por: ${ev.creator}</div>
+                            </div>
+                            <button onclick="deleteEvent(${ev.id}, '${deleteUrl}', '${CSRF}')" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color:#c0392b; padding:4px 7px; border-radius:4px; flex-shrink:0;" title="Eliminar evento">✕</button>
+                        </div>`;
+                    });
+                } else {
+                    list.innerHTML = `<p style="color:#888; font-style:italic;">No hay eventos para este día.</p>`;
+                }
+                
+                modal.style.display = "flex";
+            }
+            
+            async function deleteEvent(eventId, url, csrf) {
+                if (!confirm('¿Eliminar este evento?')) return;
+                try {
+                    await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': csrf } });
+                    const el = document.getElementById('ev-' + eventId);
+                    if (el) el.remove();
+                    // Actualizar puntos en cache
+                    for (let day in currentEvents) {
+                        currentEvents[day] = currentEvents[day].filter(e => e.id !== eventId);
+                    }
+                    // Refrescar grid para actualizar puntitos
+                    renderCalendar(currentDate);
+                } catch(e) { console.log('Error deleting event', e); }
+            }
+
+            async function renderCalendar(date) {
+                const grid = document.getElementById("calendar-grid");
+                const monthYear = document.getElementById("month-year");
+
+                const year = date.getFullYear();
+                const month = date.getMonth(); // 0 indexado
+
+                monthYear.innerText = `${monthNames[month]} ${year}`;
+                grid.innerHTML = "";
+
+                const firstDay = new Date(year, month, 1);
+                let firstDayIndex = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+
+                const lastDay = new Date(year, month + 1, 0).getDate();
+
+                for (let i = 0; i < firstDayIndex; i++) {
+                    const emptyCell = document.createElement("div");
+                    emptyCell.classList.add("calendar-day", "empty");
+                    grid.appendChild(emptyCell);
+                }
+
+                // FETCH eventos del mes
+                try {
+                    const r = await fetch(`{% url 'api_obtener_eventos_mes' house.slug %}?year=${year}&month=${month + 1}`);
+                    const data = await r.json();
+                    currentEvents = data.events || {};
+                } catch (e) { currentEvents = {}; }
+
+                const today = new Date();
+                for (let i = 1; i <= lastDay; i++) {
+                    const dayCell = document.createElement("div");
+                    dayCell.classList.add("calendar-day");
+                    dayCell.innerText = i;
+                    dayCell.style.position = "relative";
+                    dayCell.style.cursor = "pointer";
+                    
+                    // Al hacer click, abrir el modal de HouseEvents
+                    dayCell.onclick = () => openDayModal(i, month, year);
+
+                    if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                        dayCell.classList.add("today");
+                    }
+                    
+                    if (currentEvents[i] && currentEvents[i].length > 0) {
+                        const dot = document.createElement("div");
+                        dot.style.cssText = "width:6px; height:6px; background-color:#a9845c; border-radius:50%; position:absolute; bottom:4px; left:50%; transform:translateX(-50%);";
+                        dayCell.appendChild(dot);
+                    }
+
+                    grid.appendChild(dayCell);
+                }
+            }
+
+            document.getElementById("prev-month").addEventListener("click", () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar(currentDate);
+            });
+
+            document.getElementById("next-month").addEventListener("click", () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar(currentDate);
+            });
+
+            renderCalendar(currentDate);
+
+            // -- TABS LOGIC --
+            function openTab(tabId) {
+                document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.color = '#a9845c';
+                });
+                document.getElementById(tabId).style.display = 'block';
+                let activeBtn = document.querySelector(`button[onclick="openTab('${tabId}')"]`);
+                if (activeBtn) {
+                    activeBtn.classList.add('active');
+                    activeBtn.style.color = '#6b4f2d';
+                }
+            }
+
+            // -- PUSH NOTIFICATIONS & POLLING --
+            function requestNotificationPermission() {
+                if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+                    Notification.requestPermission();
+                }
+            }
+            requestNotificationPermission();
+
+            function playDingSound() {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+                function playNote(freq, startTime, duration) {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = "sine";
+
+                    osc.frequency.setValueAtTime(freq, startTime);
+
+                    // Soft attack, smooth decay
+                    gain.gain.setValueAtTime(0, startTime);
+                    gain.gain.linearRampToValueAtTime(0.5, startTime + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                }
+
+                // Ding-Dong bell sound
+                playNote(523.25, ctx.currentTime, 0.8); // C5
+                playNote(440.00, ctx.currentTime + 0.2, 1.2); // A4
+            }
+
+            function checkReminders() {
+                fetch("{% url 'api_recordatorios' house.slug %}")
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.reminders && data.reminders.length > 0) {
+                            data.reminders.forEach(rem => {
+                                playDingSound();
+
+                                if ("Notification" in window && Notification.permission === "granted") {
+                                    new Notification(`⏰ Homie: Aviso de ${rem.creator}`, {
+                                        body: rem.message,
+                                        icon: "{% static 'img/logo.png' %}"
+                                    });
+                                } else {
+                                    alert(`🔔 RECORDATORIO DE ${rem.creator}:\n${rem.message}`);
+                                }
+
+                                fetch("{% url 'api_marcar_recordatorio_leido' house.slug %}", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                                    },
+                                    body: JSON.stringify({ id: rem.id })
+                                });
+
+                                let pendingCard = document.getElementById("pending-" + rem.id);
+                                if (pendingCard) pendingCard.style.display = "none";
+
+                                let cont = document.getElementById("live-alerts-container");
+                                if (cont) {
+                                    cont.innerHTML += `<div style="background: rgba(255,255,255,0.7); margin-bottom: 5px; padding: 10px; border-radius: 5px; border-left: 3px solid #6b4f2d;">
+                                <strong>Hora: ${rem.trigger}</strong> - ${rem.message}
+                            </div>`;
+                                }
+                            });
+                        }
+                    });
+            }
+            setInterval(checkReminders, 10000); // Revisar cada 10s
+        </script>
+        <script>
+            // Auto-refresh via polling para el Corcho
+            let initialCorchoChecksum = null;
+            setInterval(() => {
+                fetch("{% url 'api_corcho_checksum' house.slug %}")
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.checksum !== undefined) {
+                            if (initialCorchoChecksum === null) {
+                                initialCorchoChecksum = data.checksum;
+                            } else if (initialCorchoChecksum !== data.checksum) {
+                                window.location.reload();
+                            }
+                        }
+                    })
+                    .catch(e => console.log('Polling corcho error:', e));
+            }, 4000);
+        </script>
+
+        <!-- Modal Calendario -->
+        <div class="modal" id="calendarEventsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+            <div class="modal-content" style="background:#fff; border-radius:12px; width:90%; max-width:400px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+                <h2 id="calendarModalTitle" style="color:#4b6f44; margin-top:0; border-bottom:2px solid #e7efdf; padding-bottom:10px;">Eventos del día</h2>
+                
+                <div id="calendarModalList" style="margin-bottom:20px; max-height:200px; overflow-y:auto;">
+                    <!-- Eventos inyectados por JS -->
+                </div>
+                
+                <form method="post" action="{% url 'agregar_evento_calendario' house.slug %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="date" id="calendarModalDateInput">
+                    <div style="display:flex; gap:10px; align-items:stretch;">
+                        <input type="text" name="title" placeholder="Añadir evento a este día..." style="flex-grow:1; padding:10px; border:1px solid #ddd; border-radius:5px;" required>
+                        <button type="submit" class="btn primary" style="padding:10px 15px;">+</button>
+                    </div>
+                </form>
+                
+                <button onclick="document.getElementById('calendarEventsModal').style.display='none';" class="btn secondary" style="width:100%; margin-top:15px; background:none; color:#888; border:1px solid #ddd;">Cerrar Calendario</button>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>
