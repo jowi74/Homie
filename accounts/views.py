@@ -140,6 +140,8 @@ def verify_email_view(request):
                     del request.session['reg_code']
                     
                     # Logear y mandar al inicio
+                    # Como hay múltiples backends configurados en settings, especificamos el estándar a mano
+                    user.backend = 'django.contrib.auth.backends.ModelBackend'
                     login(request, user)
                     return redirect('inicio')
                 except CustomUser.DoesNotExist:
